@@ -74,7 +74,7 @@ The project is planned as a multi-phase development and may be extended with:
 
 👥 Team
 
-**Team ID:** DSCPP-III-2026-T230
+Team ID: DSCPP-III-2026-T230
 
 Section: A, G, E
 
