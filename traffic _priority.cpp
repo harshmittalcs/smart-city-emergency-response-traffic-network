@@ -1,14 +1,14 @@
 #include <iostream>
 using namespace std;
 
-class TrafficSignal
+class Traffic_Signal
 {
 private:
     string signal;
     bool emergency;
 
 public:
-    TrafficSignal()
+    Traffic_Signal()
     {
         signal = "RED";
         emergency = false;
@@ -41,7 +41,7 @@ public:
 
 int main()
 {
-    TrafficSignal signal;
+    Traffic_Signal signal;
 
     int emergency;
 
