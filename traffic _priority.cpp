@@ -1,57 +1,39 @@
+
 #include <iostream>
-using namespace std;
+#include "TrafficSignal.h"
 
-class Traffic_Signal
+TrafficSignal::TrafficSignal()
 {
-private:
-    string signal;
-    bool emergency;
+    signal = "RED";
+    emergency = false;
+}
 
-public:
-    Traffic_Signal()
-    {
-        signal = "RED";
-        emergency = false;
-    }
-
-    void setEmergency(bool status)
-    {
-        emergency = status;
-    }
-
-    void givePriority()
-    {
-        if (emergency)
-        {
-            signal = "GREEN";
-            cout << "Emergency priority activated.\n";
-            cout << "Signal changed to GREEN.\n";
-        }
-        else
-        {
-            cout << "Normal signal operation.\n";
-        }
-    }
-
-    void displaySignal()
-    {
-        cout << "Current Signal: " << signal << endl;
-    }
-};
-
-int main()
+void TrafficSignal::setEmergency(bool status)
 {
-    Traffic_Signal signal;
+    emergency = status;
+}
 
-    int emergency;
+void TrafficSignal::givePriority()
+{
+    if (emergency)
+    {
+        signal = "GREEN";
+        std::cout << "Emergency vehicle detected. Green signal granted.\n";
+    }
+    else
+    {
+        std::cout << "No emergency priority requested.\n";
+    }
+}
 
-    cout << "Is emergency vehicle approaching? (1/0): ";
-    cin >> emergency;
+void TrafficSignal::resetSignal()
+{
+    emergency = false;
+    signal = "RED";
+    std::cout << "Signal reset to RED.\n";
+}
 
-    signal.setEmergency(emergency);
-
-    signal.givePriority();
-    signal.displaySignal();
-
-    return 0;
+void TrafficSignal::displaySignal()
+{
+    std::cout << "Current Traffic Signal: " << signal << '\n';
 }
