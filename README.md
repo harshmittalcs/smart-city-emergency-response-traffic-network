@@ -103,3 +103,7 @@ smart-city-emergency-response-traffic-network/
 Phase 1 — Research & Initial Analysis
 
 Further implementation and system development will be carried out in subsequent phases.
+
+Phase 2 - Implementation and System Development
+
+Development of the proposed emergency response and traffic management system, including implementation of DSA algorithms, emergency vehicle prioritization, traffic management, module integration and testing.
