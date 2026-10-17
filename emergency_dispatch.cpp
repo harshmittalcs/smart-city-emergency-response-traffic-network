@@ -1,6 +1,8 @@
 
+
 #include <iostream>
 #include <limits>
+#include <cctype>
 #include "EmergencyDispatch.h"
 
 DispatchResult::DispatchResult()
@@ -14,6 +16,31 @@ EmergencyDispatch::EmergencyDispatch(
     EmergencyVehicleList& vehicleList, RoadNetwork& roadNetwork)
     : vehicles(vehicleList), network(roadNetwork)
 {
+}
+
+bool EmergencyDispatch::isSuitableVehicle(
+    const std::string& vehicleType,
+    const std::string& emergencyType) const
+{
+    std::string type = vehicleType;
+    std::string emergency = emergencyType;
+
+    for (char& c : type)
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+    for (char& c : emergency)
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+    if (emergency == "medical")
+        return type.find("ambulance") != std::string::npos;
+
+    if (emergency == "fire")
+        return type.find("fire") != std::string::npos;
+
+    if (emergency == "rescue")
+        return type.find("rescue") != std::string::npos;
+
+    return false;
 }
 
 bool EmergencyDispatch::setVehicleLocation(
@@ -38,18 +65,32 @@ bool EmergencyDispatch::setVehicleLocation(
     }
 
     vehicleLocations[number] = intersection;
-
     std::cout << "Vehicle location updated successfully.\n";
     return true;
 }
 
-DispatchResult EmergencyDispatch::dispatchVehicle(int destination)
+DispatchResult EmergencyDispatch::dispatchVehicle(
+    int destination, std::string emergencyType)
 {
     DispatchResult result;
+    result.emergencyType = emergencyType;
 
     if (!network.isValidIntersection(destination))
     {
         std::cout << "Invalid destination.\n";
+        return result;
+    }
+
+    std::string emergency = emergencyType;
+
+    for (char& c : emergency)
+        c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+
+    if (emergency != "medical" &&
+        emergency != "fire" &&
+        emergency != "rescue")
+    {
+        std::cout << "Invalid emergency type. Enter Medical, Fire, or Rescue.\n";
         return result;
     }
 
@@ -60,14 +101,15 @@ DispatchResult EmergencyDispatch::dispatchVehicle(int destination)
         const std::string& number = entry.first;
         int source = entry.second;
 
-        if (vehicles.searchVehicle(number) == nullptr ||
-            isVehicleBusy(number))
-        {
-            continue;
-        }
+        EmergencyVehicle* vehicle = vehicles.searchVehicle(number);
 
-        PathResult route =
-            shortestPath.dijkstra(network, source, destination);
+        if (vehicle == nullptr || isVehicleBusy(number))
+            continue;
+
+        if (!isSuitableVehicle(vehicle->type, emergency))
+            continue;
+
+        PathResult route = shortestPath.dijkstra(network, source, destination);
 
         if (route.found && route.distance < minimumDistance)
         {
@@ -82,13 +124,14 @@ DispatchResult EmergencyDispatch::dispatchVehicle(int destination)
 
     if (!result.success)
     {
-        std::cout << "No available vehicle can reach the destination.\n";
+        std::cout << "No available suitable vehicle can reach the destination.\n";
         return result;
     }
 
     busyVehicles.insert(result.vehicleNumber);
 
     std::cout << "\n===== EMERGENCY DISPATCH =====\n";
+    std::cout << "Emergency Type: " << emergencyType << '\n';
     std::cout << "Assigned Vehicle: " << result.vehicleNumber << '\n';
     std::cout << "Starting Location: "
               << network.getIntersectionName(result.source) << '\n';
@@ -109,10 +152,7 @@ bool EmergencyDispatch::completeDispatch(std::string number)
     }
 
     busyVehicles.erase(number);
-
-    std::cout << "Dispatch completed for vehicle "
-              << number << ".\n";
-
+    std::cout << "Dispatch completed for vehicle " << number << ".\n";
     return true;
 }
 
@@ -150,9 +190,7 @@ void EmergencyDispatch::displayVehicleLocations() const
     for (const auto& entry : vehicleLocations)
     {
         if (vehicles.searchVehicle(entry.first) == nullptr)
-        {
             continue;
-        }
 
         std::cout << "Vehicle: " << entry.first
                   << " | Location: "
