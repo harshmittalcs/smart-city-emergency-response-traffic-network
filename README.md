@@ -259,3 +259,20 @@ Response-time and route comparison.
 Integrated program modules.
 Initial testing results and implementation documentation.
 
+Phase III — Testing and Evaluation
+
+After development, the integrated system will be tested using multiple simulated road networks and traffic conditions.
+
+Activities
+Test different source and destination combinations.
+Compare route selection under different edge weights.
+Evaluate signal prioritization.
+Measure estimated travel time and intersection waiting time.
+Compare normal and optimized cases.
+Identify limitations and possible improvements.
+Expected Outcome
+
+The project will produce simulation results showing how the proposed approach performs under the tested conditions.
+
+Any claimed improvement in response time should be supported by actual test results rather than assumed in advance.
+
