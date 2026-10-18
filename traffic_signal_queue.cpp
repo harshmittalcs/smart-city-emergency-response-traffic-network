@@ -1,168 +1,117 @@
-#include <bits/stdc++.h>
-using namespace std;
 
-struct Vehicle
+#include <iostream>
+#include "TrafficQueue.h"
+
+TrafficQueue::TrafficQueue()
 {
-    string number;
-    string type;
-    Vehicle *next;
-};
+    front = nullptr;
+    rear = nullptr;
+}
 
-class TrafficQueue
+bool TrafficQueue::isInQueue(EmergencyVehicle* vehicle)
 {
-private:
-    Vehicle *front;
-    Vehicle *rear;
+    EmergencyVehicle* temp = front;
 
-public:
-    TrafficQueue()
+    while (temp != nullptr)
     {
-        front = NULL;
-        rear = NULL;
+        if (temp == vehicle)
+        {
+            return true;
+        }
+
+        temp = temp->queueNext;
     }
 
-    void enqueue(string number, string type)
-    {
+    return false;
+}
 
-        Vehicle *newVehicle = new Vehicle;
-
-        newVehicle->number = number;
-        newVehicle->type = type;
-        newVehicle->next = NULL;
-
-        if (front == NULL)
-        {
-            front = newVehicle;
-            rear = newVehicle;
-        }
-        else
-        {
-            rear->next = newVehicle;
-            rear = newVehicle;
-        }
-
-        cout << "Vehicle added successfully.\n";
-    }
-
-    void dequeue()
-    {
-        if (front == NULL)
-        {
-            cout << "No vehicles in the queue.\n";
-            return;
-        }
-
-        Vehicle *temp = front;
-
-        cout << temp->number << " has passed the signal.\n";
-
-        front = front->next;
-
-        if (front == NULL)
-        {
-            rear = NULL;
-        }
-
-        delete temp;
-    }
-
-    void display()
-    {
-
-        if (front == NULL)
-        {
-            cout << "Queue is empty.\n";
-            return;
-        }
-
-        Vehicle *temp = front;
-
-        cout << "\nVehicles waiting:\n";
-
-        while (temp != NULL)
-        {
-            cout << temp->number << " - " << temp->type << endl;
-            temp = temp->next;
-        }
-    }
-
-    int queueSize()
-    {
-        int count = 0;
-        Vehicle *temp = front;
-
-        while (temp != NULL)
-        {
-            count++;
-            temp = temp->next;
-        }
-
-        return count;
-    }
-};
-
-int main()
+bool TrafficQueue::enqueue(EmergencyVehicle* vehicle)
 {
-
-    TrafficQueue q;
-
-    int choice;
-
-    do
+    if (vehicle == nullptr)
     {
+        std::cout << "Invalid vehicle.\n";
+        return false;
+    }
 
-        cout << "\n===== TRAFFIC QUEUE MANAGEMENT =====\n";
-        cout << "1. Add Vehicle\n";
-        cout << "2. Allow Vehicle to Pass\n";
-        cout << "3. Display Waiting Vehicles\n";
-        cout << "4. Show Queue Size\n";
-        cout << "5. Exit\n";
+    if (isInQueue(vehicle))
+    {
+        std::cout << "Vehicle is already in the queue.\n";
+        return false;
+    }
 
-        cout << "Enter your choice: ";
-        cin >> choice;
+    vehicle->queueNext = nullptr;
 
-        switch (choice)
-        {
+    if (rear == nullptr)
+    {
+        front = vehicle;
+        rear = vehicle;
+    }
+    else
+    {
+        rear->queueNext = vehicle;
+        rear = vehicle;
+    }
 
-        case 1:
-        {
-            string number, type;
+    std::cout << "Vehicle added to traffic queue.\n";
+    return true;
+}
 
-            cout << "Enter vehicle number: ";
+EmergencyVehicle* TrafficQueue::dequeue()
+{
+    if (front == nullptr)
+    {
+        std::cout << "Traffic queue is empty.\n";
+        return nullptr;
+    }
 
-            cin.ignore();
-            getline(cin, number);
+    EmergencyVehicle* temp = front;
+    front = front->queueNext;
 
-            cout << "Enter vehicle type: ";
-            cin >> type;
+    if (front == nullptr)
+    {
+        rear = nullptr;
+    }
 
-            q.enqueue(number, type);
+    temp->queueNext = nullptr;
 
-            break;
-        }
+    std::cout << "Vehicle " << temp->number
+              << " passed the traffic signal.\n";
 
-        case 2:
-            q.dequeue();
-            break;
+    return temp;
+}
 
-        case 3:
-            q.display();
-            break;
+void TrafficQueue::display()
+{
+    if (front == nullptr)
+    {
+        std::cout << "Traffic queue is empty.\n";
+        return;
+    }
 
-        case 4:
-            cout << "Vehicles waiting: "
-                 << q.queueSize() << endl;
-            break;
+    EmergencyVehicle* temp = front;
 
-        case 5:
-            cout << "Exiting...\n";
-            break;
+    std::cout << "\n===== TRAFFIC QUEUE =====\n";
 
-        default:
-            cout << "Invalid choice.\n";
-        }
+    while (temp != nullptr)
+    {
+        std::cout << "Vehicle Number: " << temp->number << '\n';
+        std::cout << "Vehicle Type: " << temp->type << '\n';
+        std::cout << "-------------------------\n";
 
-    } while (choice != 5);
+        temp = temp->queueNext;
+    }
+}
 
-    return 0;
+int TrafficQueue::queueSize()
+{
+    int count = 0;
+    EmergencyVehicle* temp = front;
+
+    while (temp != nullptr)
+    {
+        count++;
+        temp = temp->queueNext;
+    }
+
+    return count;
 }
