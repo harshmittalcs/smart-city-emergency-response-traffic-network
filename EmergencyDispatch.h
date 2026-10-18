@@ -11,6 +11,7 @@
 struct DispatchResult
 {
     std::string vehicleNumber;
+    std::string emergencyType;
     int source;
     int destination;
     PathResult route;
@@ -28,11 +29,18 @@ private:
     std::unordered_map<std::string, int> vehicleLocations;
     std::unordered_set<std::string> busyVehicles;
 
+    bool isSuitableVehicle(
+        const std::string& vehicleType,
+        const std::string& emergencyType) const;
+
 public:
-    EmergencyDispatch(EmergencyVehicleList& vehicleList, RoadNetwork& roadNetwork);
+    EmergencyDispatch(
+        EmergencyVehicleList& vehicleList,
+        RoadNetwork& roadNetwork);
 
     bool setVehicleLocation(std::string number, int intersection);
-    DispatchResult dispatchVehicle(int destination);
+    DispatchResult dispatchVehicle(
+        int destination, std::string emergencyType);
     bool completeDispatch(std::string number);
     bool isVehicleBusy(std::string number) const;
     bool isVehicleAssigned(std::string number) const;
