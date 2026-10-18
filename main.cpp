@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <limits>
+#include <vector>
 #include "EmergencyVehicleList.h"
 #include "TrafficQueue.h"
 #include "TrafficSignal.h"
@@ -25,7 +26,7 @@ int main()
     int choice = 0;
     int source, destination, distance;
     std::string number, type, name;
-    DispatchResult activeDispatch;
+    std::vector<DispatchResult> activeDispatches;
 
     do
     {
@@ -216,6 +217,9 @@ int main()
                     break;
                 }
 
+                std::cin.ignore(
+                    std::numeric_limits<std::streamsize>::max(), '\n');
+
                 network.addRoad(source, destination, distance);
                 history.push("Road network update requested");
                 break;
@@ -249,6 +253,9 @@ int main()
                     break;
                 }
 
+                std::cin.ignore(
+                    std::numeric_limits<std::streamsize>::max(), '\n');
+
                 PathResult result =
                     shortestPath.dijkstra(network, source, destination);
 
@@ -273,6 +280,9 @@ int main()
                     break;
                 }
 
+                std::cin.ignore(
+                    std::numeric_limits<std::streamsize>::max(), '\n');
+
                 if (dispatch.setVehicleLocation(number, source))
                 {
                     history.push("Location assigned to " + number);
@@ -284,7 +294,11 @@ int main()
             {
                 network.displayIntersections();
 
+                std::cout << "Enter emergency type (Medical/Fire/Rescue): ";
+                std::getline(std::cin, type);
+
                 std::cout << "Enter emergency destination ID: ";
+
                 if (!(std::cin >> destination))
                 {
                     std::cin.clear();
@@ -294,27 +308,51 @@ int main()
                     break;
                 }
 
-                if (activeDispatch.success &&
-                    dispatch.isVehicleBusy(activeDispatch.vehicleNumber))
-                {
-                    std::cout << "Simulate the previous dispatch first.\n";
-                    break;
-                }
+                std::cin.ignore(
+                    std::numeric_limits<std::streamsize>::max(), '\n');
 
-                activeDispatch = dispatch.dispatchVehicle(destination);
+                DispatchResult result =
+                    dispatch.dispatchVehicle(destination, type);
 
-                if (activeDispatch.success)
+                if (result.success)
                 {
                     history.push(
-                        "Dispatched vehicle " +
-                        activeDispatch.vehicleNumber);
+                        "Dispatched " + type + " emergency vehicle " +
+                        result.vehicleNumber);
+
+                    activeDispatches.push_back(result);
                 }
+
                 break;
             }
 
             case 17:
-                simulation.simulateEmergencyRoute(activeDispatch);
+            {
+                std::cout << "Enter vehicle number to simulate: ";
+                std::getline(std::cin, number);
+
+                bool found = false;
+
+                for (DispatchResult& result : activeDispatches)
+                {
+                    if (result.success &&
+                        result.vehicleNumber == number &&
+                        dispatch.isVehicleBusy(number))
+                    {
+                        simulation.simulateEmergencyRoute(result);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    std::cout
+                        << "No active dispatch found for this vehicle.\n";
+                }
+
                 break;
+            }
 
             case 18:
                 dispatch.displayVehicleLocations();
