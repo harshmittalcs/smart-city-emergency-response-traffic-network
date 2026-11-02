@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart City Emergency Response & Traffic Management</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <!-- Header Bar -->
+  <header class="navbar">
+    <div class="nav-brand">
+      <div class="logo-icon">🚨</div>
+      <div>
+        <h1>SmartCity Dispatch</h1>
+        <p class="subtitle">Emergency Response & Traffic Management System • DSA Project</p>
+      </div>
+    </div>
+
+    <div class="nav-stats">
+      <div class="stat-pill" id="backendPill">
+        <span class="status-dot online" id="statusDot"></span>
+        <span id="backendStatus">Connecting...</span>
+      </div>
+      <div class="live-clock" id="liveClock">00:00:00</div>
+      <button class="btn btn-sm btn-outline" id="loadSampleBtn" title="Preload sample city with 7 intersections & 4 vehicles">
+        ⚡ Load Demo City
+      </button>
+    </div>
+  </header>
+
+  <!-- Top KPI Cards -->
+  <section class="kpi-strip">
+    <div class="kpi-card">
+      <div class="kpi-icon signal-icon" id="kpiSignalIcon">🚦</div>
+      <div class="kpi-data">
+        <span class="kpi-label">Traffic Signal</span>
+        <span class="kpi-value" id="kpiSignalValue">RED</span>
+      </div>
+      <div class="kpi-badge" id="kpiSignalBadge">Standard</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">🚗</div>
+      <div class="kpi-data">
+        <span class="kpi-label">Queued Vehicles</span>
+        <span class="kpi-value" id="kpiQueueCount">0</span>
+      </div>
+      <div class="kpi-badge info">FIFO Queue</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">🚑</div>
+      <div class="kpi-data">
+        <span class="kpi-label">Emergency Fleet</span>
+        <span class="kpi-value" id="kpiFleetCount">0</span>
+      </div>
+      <div class="kpi-badge success">Linked List</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">🗺️</div>
+      <div class="kpi-data">
+        <span class="kpi-label">Intersections</span>
+        <span class="kpi-value" id="kpiIntersectionsCount">0</span>
+      </div>
+      <div class="kpi-badge warning">Graph / Dijkstra</div>
+    </div>
+
+    <div class="kpi-card">
+      <div class="kpi-icon">⚡</div>
+      <div class="kpi-data">
+        <span class="kpi-label">Active Dispatches</span>
+        <span class="kpi-value" id="kpiDispatchesCount">0</span>
+      </div>
+      <div class="kpi-badge danger" id="kpiDispatchBadge">None</div>
+    </div>
+  </section>
+
+  <!-- Main Container -->
+  <main class="main-layout">
+    <!-- Left Column: Interactive City Graph Canvas -->
+    <section class="map-section card">
+      <div class="card-header">
+        <div class="card-title">
+          <span class="header-icon">🗺️</span>
+          <h2>Interactive Road Network Map</h2>
+          <span class="chip chip-graph">Weighted Graph & Dijkstra</span>
+        </div>
+        <div class="map-controls">
+          <button class="btn btn-xs btn-outline" id="resetMapZoomBtn" title="Reset Map View">Center View</button>
+          <span class="legend-item"><span class="legend-color normal-road"></span> Road</span>
+          <span class="legend-item"><span class="legend-color corridor-road"></span> Green Corridor</span>
+          <span class="legend-item"><span class="legend-color shortest-road"></span> Dijkstra Path</span>
+        </div>
+      </div>
+
+      <div class="canvas-wrapper">
+        <canvas id="cityCanvas"></canvas>
+        <div class="canvas-overlay" id="canvasOverlay">
+          <div class="overlay-pill">Click any intersection node to select it as Destination</div>
+        </div>
+        <!-- Active Simulation Floating Banner -->
+        <div class="sim-banner hidden" id="simBanner">
+          <div class="sim-banner-content">
+            <span class="spinner"></span>
+            <div>
+              <strong id="simVehicleTitle">Vehicle AMB-101 En Route</strong>
+              <p id="simStatusSub">Green corridor priority active • Approaching destination...</p>
+            </div>
+          </div>
+          <div class="sim-progress-bar">
+            <div class="sim-progress-fill" id="simProgressFill"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Traffic Signal & Queue Control Strip underneath Map -->
+      <div class="signal-queue-strip">
+        <div class="traffic-light-box">
+          <div class="light-housing">
+            <div class="light red" id="lightRed"></div>
+            <div class="light yellow" id="lightYellow"></div>
+            <div class="light green" id="lightGreen"></div>
+          </div>
+          <div class="light-info">
+            <div class="light-state-title" id="lightStateText">SIGNAL: RED</div>
+            <div class="light-state-sub" id="lightStateSub">Normal Traffic Cycle</div>
+            <div class="btn-group-sm">
+              <button class="btn btn-xs btn-success" id="givePriorityBtn">🚨 Green Corridor</button>
+              <button class="btn btn-xs btn-danger" id="resetSignalBtn">🛑 Reset RED</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="queue-display-box">
+          <div class="queue-header">
+            <h4>🚦 Signal Waiting Queue (FIFO)</h4>
+            <button class="btn btn-xs btn-primary" id="dequeueBtn">Allow Front Vehicle to Pass</button>
+          </div>
+          <div class="queue-track" id="queueTrack">
+            <div class="queue-empty-msg">Queue is empty. Add a vehicle below.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Operations Panel -->
+    <aside class="control-panel">
+      <!-- Tab Navigation -->
+      <nav class="tabs-nav">
+        <button class="tab-btn active" data-tab="tab-dispatch">
+          <span class="tab-icon">🚨</span> Dispatch
+        </button>
+        <button class="tab-btn" data-tab="tab-vehicles">
+          <span class="tab-icon">🚑</span> Fleet
+        </button>
+        <button class="tab-btn" data-tab="tab-network">
+          <span class="tab-icon">🛣️</span> Network
+        </button>
+        <button class="tab-btn" data-tab="tab-history">
+          <span class="tab-icon">📜</span> History (Stack)
+        </button>
+      </nav>
+
+      <!-- Tab 1: Emergency Dispatch -->
+      <div class="tab-content active" id="tab-dispatch">
+        <div class="card panel-card">
+          <div class="panel-header">
+            <h3>⚡ Emergency Dispatch Center</h3>
+            <p>Automatically finds nearest suitable vehicle using Dijkstra Algorithm</p>
+          </div>
+
+          <form id="dispatchForm" class="control-form">
+            <div class="form-group">
+              <label for="emergencyTypeSelect">Emergency Type</label>
+              <select id="emergencyTypeSelect" class="form-input" required>
+                <option value="Medical">🏥 Medical (Requires Ambulance)</option>
+                <option value="Fire">🔥 Fire (Requires Fire Engine)</option>
+                <option value="Rescue">🛟 Rescue (Requires Rescue Squad)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="dispatchDestSelect">Destination Intersection</label>
+              <select id="dispatchDestSelect" class="form-input" required>
+                <option value="">Select destination...</option>
+              </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block" id="btnDispatch">
+              ⚡ Find Route & Dispatch Emergency Vehicle
+            </button>
+          </form>
+
+          <!-- Dispatch Result Box -->
+          <div class="dispatch-result-box hidden" id="dispatchResultBox">
+            <div class="result-header">
+              <span class="badge badge-success">Dispatch Confirmed</span>
+              <span class="result-dist" id="resultDistance">12 km</span>
+            </div>
+            <div class="result-details">
+              <div><strong>Vehicle:</strong> <span id="resultVehicle">AMB-101</span></div>
+              <div><strong>Emergency:</strong> <span id="resultEmergencyType">Medical</span></div>
+              <div><strong>From:</strong> <span id="resultSource">Central Hospital</span></div>
+              <div><strong>To:</strong> <span id="resultDest">City Center</span></div>
+            </div>
+            <div class="route-path-flow" id="resultPathFlow">
+              <!-- Path steps rendered dynamically -->
+            </div>
+            <button class="btn btn-warning btn-block btn-sim" id="btnSimulateRoute">
+              ▶️ Simulate Green Corridor Route
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 2: Vehicle Fleet Management -->
+      <div class="tab-content" id="tab-vehicles">
+        <div class="card panel-card">
+          <div class="panel-header">
+            <h3>🚑 Emergency Fleet (Linked List)</h3>
+            <p>Register, locate, and enqueue emergency vehicles</p>
+          </div>
+
+          <!-- Add Vehicle Sub-card -->
+          <div class="sub-form-section">
+            <h4>Register New Vehicle</h4>
+            <form id="addVehicleForm" class="inline-form">
+              <input type="text" id="vehicleNumInput" class="form-input" placeholder="e.g. AMB-103" required>
+              <select id="vehicleTypeInput" class="form-input" required>
+                <option value="Ambulance">Ambulance</option>
+                <option value="Fire Engine">Fire Engine</option>
+                <option value="Rescue Squad">Rescue Squad</option>
+              </select>
+              <button type="submit" class="btn btn-primary">Add</button>
+            </form>
+          </div>
+
+          <!-- Assign Location Sub-card -->
+          <div class="sub-form-section">
+            <h4>Assign Vehicle Location</h4>
+            <form id="setLocationForm" class="inline-form">
+              <select id="assignVehicleSelect" class="form-input" required>
+                <option value="">Select vehicle...</option>
+              </select>
+              <select id="assignLocationSelect" class="form-input" required>
+                <option value="">Select intersection...</option>
+              </select>
+              <button type="submit" class="btn btn-outline">Set</button>
+            </form>
+          </div>
+
+          <!-- Add to Signal Queue -->
+          <div class="sub-form-section">
+            <h4>Add to Traffic Queue</h4>
+            <form id="enqueueForm" class="inline-form">
+              <select id="queueVehicleSelect" class="form-input" required>
+                <option value="">Select vehicle...</option>
+              </select>
+              <button type="submit" class="btn btn-outline">Enqueue</button>
+            </form>
+          </div>
+
+          <!-- Fleet List Table -->
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Vehicle</th>
+                  <th>Type</th>
+                  <th>Location</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="fleetTableBody">
+                <tr><td colspan="5" class="text-center">No vehicles registered yet.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 3: Road Network Builder -->
+      <div class="tab-content" id="tab-network">
+        <div class="card panel-card">
+          <div class="panel-header">
+            <h3>🛣️ City Road Network (Graph)</h3>
+            <p>Add intersections and bidirectional weighted roads</p>
+          </div>
+
+          <!-- Add Intersection -->
+          <div class="sub-form-section">
+            <h4>Add Intersection</h4>
+            <form id="addIntersectionForm" class="inline-form">
+              <input type="text" id="intersectionNameInput" class="form-input" placeholder="e.g. Metro Station" required>
+              <button type="submit" class="btn btn-primary">Add Intersection</button>
+            </form>
+          </div>
+
+          <!-- Add Road -->
+          <div class="sub-form-section">
+            <h4>Connect Road (Edge)</h4>
+            <form id="addRoadForm" class="control-form">
+              <div class="form-row">
+                <div class="form-group col-half">
+                  <label>Source</label>
+                  <select id="roadSourceSelect" class="form-input" required>
+                    <option value="">Select...</option>
+                  </select>
+                </div>
+                <div class="form-group col-half">
+                  <label>Destination</label>
+                  <select id="roadDestSelect" class="form-input" required>
+                    <option value="">Select...</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Distance (km)</label>
+                <input type="number" id="roadDistInput" class="form-input" placeholder="e.g. 5" min="1" required>
+              </div>
+              <button type="submit" class="btn btn-outline btn-block">Add Road</button>
+            </form>
+          </div>
+
+          <!-- Intersections & Roads List -->
+          <div class="table-wrapper">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Intersection Name</th>
+                  <th>Connected Roads</th>
+                </tr>
+              </thead>
+              <tbody id="intersectionsTableBody">
+                <tr><td colspan="3" class="text-center">No intersections created.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab 4: Action History (Stack) -->
+      <div class="tab-content" id="tab-history">
+        <div class="card panel-card">
+          <div class="panel-header">
+            <h3>📜 Action History Log</h3>
+            <p>TrafficActionStack (LIFO - Last In, First Out)</p>
+          </div>
+          <div class="history-list" id="historyList">
+            <div class="history-empty">No actions logged yet.</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Notification Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
