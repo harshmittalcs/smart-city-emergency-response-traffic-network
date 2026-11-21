@@ -1,4 +1,3 @@
-
 #ifndef ROAD_NETWORK_H
 #define ROAD_NETWORK_H
 
@@ -21,6 +20,8 @@ public:
     std::string getIntersectionName(int id) const;
     const std::vector<std::pair<int, int>>& getNeighbors(int id) const;
     bool isValidIntersection(int id) const;
+    const std::vector<std::string>& getAllIntersections() const { return intersections; }
+    const std::vector<std::vector<std::pair<int, int>>>& getAllRoads() const { return roads; }
 };
 
 #endif

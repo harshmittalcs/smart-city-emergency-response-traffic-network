@@ -61,3 +61,17 @@ void TrafficActionStack::display()
         temp = temp->next;
     }
 }
+
+std::vector<std::string> TrafficActionStack::getHistory() const
+{
+    std::vector<std::string> list;
+    Action* temp = top;
+
+    while (temp != nullptr)
+    {
+        list.push_back(temp->description);
+        temp = temp->next;
+    }
+
+    return list;
+}

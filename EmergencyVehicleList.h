@@ -1,8 +1,8 @@
-
 #ifndef EMERGENCY_VEHICLE_LIST_H
 #define EMERGENCY_VEHICLE_LIST_H
 
 #include <string>
+#include <vector>
 #include "EmergencyVehicle.h"
 
 class TrafficQueue;
@@ -20,6 +20,7 @@ public:
     void displayVehicles();
     EmergencyVehicle* searchVehicle(std::string number);
     void removeVehicle(std::string number, TrafficQueue& queue);
+    std::vector<EmergencyVehicle*> getVehicles() const;
 };
 
 #endif
