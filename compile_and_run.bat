@@ -2,7 +2,7 @@
 echo ========================================================
 echo   Compiling Smart City Project (C++17 + Winsock)
 echo ========================================================
-g++ -std=c++17 *.cpp -o pbl_smart.exe -lws2_32
+g++ -std=c++17 -Ibackend/include backend/src/*.cpp -o pbl_smart.exe -lws2_32
 if %errorlevel% neq 0 (
     echo.
     echo [ERROR] Compilation failed!

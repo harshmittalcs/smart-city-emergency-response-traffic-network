@@ -1,75 +1,150 @@
-# Smart City Emergency Response & Traffic Management System
+# Smart City Emergency Response & Traffic Network
 
-A Data Structures and Algorithms (DSA) project featuring an interactive Web Frontend Dashboard connected to a C++ simulation engine.
+A data-structure-based system designed to improve emergency vehicle response by enabling efficient route selection and intelligent traffic management.
 
-## 🌟 How the Frontend Works (Architecture Overview)
+---
 
-```
-+-------------------------------------------------------------------------------+
-|                             WEB FRONTEND (UI)                                 |
-|  - HTML5 Canvas Road Map (Visualizes City Graph, Intersections & Roads)        |
-|  - Real-time Dijkstra Route Animation (Vehicle moving along shortest path)    |
-|  - Live Traffic Signal Widget (RED / GREEN glowing corridor)                  |
-|  - FIFO Traffic Queue Visualizer (Vehicles waiting at intersection)           |
-|  - Emergency Dispatch & Fleet Management Controls                             |
-+-------------------------------------------------------------------------------+
-                                 ▲              │
-                 JSON Data Sync  │              │ HTTP REST Requests
-         (e.g., /api/status)     │              │ (e.g., /api/dispatch)
-                                 │              ▼
-+-------------------------------------------------------------------------------+
-|                          C++ BACKEND ENGINE (pbl_smart)                       |
-|  - WebServer (Winsock2 HTTP Server & JSON API Handler)                        |
-|  - Graph Adjacency List: RoadNetwork (Intersections & Roads)                  |
-|  - Shortest Path: Dijkstra's Algorithm using Min-Heap / Priority Queue        |
-|  - Linked List: EmergencyVehicleList (Fleet management)                       |
-|  - Queue: TrafficQueue (FIFO waiting line at traffic signal)                  |
-|  - Stack: TrafficActionStack (LIFO history / audit log)                       |
-|  - EmergencyDispatch & TrafficSimulation (Green corridor priority)           |
-+-------------------------------------------------------------------------------+
-```
+## 🌟 Interactive Web Dashboard & Real-Time Simulation
+
+An interactive Web Frontend dashboard has been integrated with the C++ Data Structures backend:
+- **Interactive City Map**: Built with HTML5 Canvas, visualizing intersections (nodes) and roads (weighted edges).
+- **Dijkstra Shortest Path Highlighting**: Computes the optimal emergency route in real time.
+- **Green Corridor Simulation**: Automatically changes traffic signals to GREEN along the route and animates the vehicle sprite moving node-by-node.
+- **FIFO Traffic Queue**: Live visual waiting line at the traffic intersection.
+- **LIFO Action Stack**: Real-time audit history of every operation.
 
 ---
 
 ## 🚀 How to Run the Project
 
-### Option 1: Native C++ Web Server (Recommended)
-Compile and launch the C++ program directly in Web mode:
-```bash
-g++ -std=c++17 *.cpp -o pbl_smart.exe -lws2_32
+### Option 1: One-Click Web Mode
+Double-click `run_web.bat` or run:
+```powershell
+g++ -std=c++17 -Ibackend/include backend/src/*.cpp -o pbl_smart.exe -lws2_32
 .\pbl_smart.exe --web
 ```
-This automatically starts the server and opens `http://localhost:8080` in your web browser.
+This automatically starts the server and opens `http://localhost:8080/` in your browser.
 
-### Option 2: Run via Console Menu
-```bash
+### Option 2: Console Menu Mode
+Double-click `run_console.bat` or run:
+```powershell
 .\pbl_smart.exe
 ```
-In the menu, enter `20` to start the Web Frontend Server, or use options `1-19` for the traditional terminal interface.
 
-### Option 3: Python Web Runner (Zero Dependencies)
-```bash
-python server.py
-```
-Automatically serves the frontend and launches your browser at `http://localhost:8080`.
-
-### Option 4: Direct Offline / Standalone View
-Simply double-click [index.html](file:///c:/Users/dhair/pbl_smart/index.html) to open it in Chrome, Edge, or Firefox. The built-in JavaScript simulator will run with full map visualization and client-side Dijkstra calculations!
+### Option 3: Direct In-Browser View
+Double-click `frontend/index.html` (or `index.html`) to open directly in Google Chrome or Microsoft Edge.
 
 ---
 
-## 📁 Key Project Files
+📌 Project Overview
 
-| File | Type | Description |
-|---|---|---|
-| [index.html](file:///c:/Users/dhair/pbl_smart/index.html) | Frontend | Main dashboard layout, KPI stats, Canvas container, control panels |
-| [style.css](file:///c:/Users/dhair/pbl_smart/style.css) | Frontend | High-tech command center dark theme, traffic light glow, animations |
-| [app.js](file:///c:/Users/dhair/pbl_smart/app.js) | Frontend | Canvas graph renderer, live Dijkstra animation, REST API client |
-| [WebServer.h](file:///c:/Users/dhair/pbl_smart/WebServer.h) | C++ Backend | Embedded Winsock HTTP server interface |
-| [web_server.cpp](file:///c:/Users/dhair/pbl_smart/web_server.cpp) | C++ Backend | HTTP request router & JSON serialization for all DSA models |
-| [main.cpp](file:///c:/Users/dhair/pbl_smart/main.cpp) | C++ Backend | Main entry point supporting both terminal menu & `--web` flag |
-| [RoadNetwork.h](file:///c:/Users/dhair/pbl_smart/RoadNetwork.h) | C++ DSA | Graph representation (Intersections & Roads) |
-| [ShortestPath.h](file:///c:/Users/dhair/pbl_smart/ShortestPath.h) | C++ DSA | Dijkstra's algorithm for optimal emergency routes |
-| [EmergencyVehicleList.h](file:///c:/Users/dhair/pbl_smart/EmergencyVehicleList.h) | C++ DSA | Singly linked list storing registered vehicles |
-| [TrafficQueue.h](file:///c:/Users/dhair/pbl_smart/TrafficQueue.h) | C++ DSA | FIFO queue managing vehicles waiting at traffic light |
-| [TrafficActionStack.h](file:///c:/Users/dhair/pbl_smart/TrafficActionStack.h) | C++ DSA | LIFO stack recording activity audit trail |
+In urban areas, emergency vehicles such as ambulances, fire engines, and police vehicles can be delayed by traffic congestion and inefficient route selection.
+
+The **Smart City Emergency Response & Traffic Network** aims to model a city's road network and develop efficient methods for emergency vehicles to reach their destinations while considering the changing traffic conditions.
+
+The project is being developed incrementally as part of the **Project-Based Learning (PBL)** curriculum.
+
+🎯 Objectives
+
+* Represent the city road network using suitable data structures.
+* Efficiently find routes between locations.
+* Reduce response time for emergency vehicles.
+* Model traffic conditions on roads.
+* Provide a foundation for future intelligent traffic management.
+* Apply Data Structures and Algorithms to a real-world problem.
+
+🧠 Data Structures & Algorithms
+
+The project makes use of concepts from the Data Structures curriculum, including:
+
+* Arrays & Vectors
+* Linked Lists (`EmergencyVehicleList`)
+* Stacks (`TrafficActionStack`)
+* Queues (`TrafficQueue`)
+* Graphs & Adjacency Lists (`RoadNetwork`)
+* Priority Queue & Dijkstra's Algorithm (`ShortestPath`)
+* Hash Maps & Sets (`EmergencyDispatch`)
+
+📚 Phase 1 — Research & Analysis
+
+Phase 1 focuses primarily on understanding the problem domain, studying existing approaches, and identifying suitable data structures and algorithms for the proposed system.
+
+Phase 1 Activities
+
+* Problem identification
+* Literature review
+* Study of existing emergency traffic management approaches
+* Comparative analysis of selected research papers
+* Identification of suitable data structures
+* Initial system planning
+* Definition of future development scope
+
+🛠️ Technology
+
+The implementation is built using:
+
+* C++17
+* Data Structures & Algorithms
+* HTML5, CSS3, JavaScript (Frontend Dashboard)
+* Winsock2 (Embedded Web Server & REST API)
+* Git & GitHub
+
+👥 Team
+
+Team ID: DSCPP-III-2026-T230
+
+Section: A, G, E
+
+👨‍🏫 Mentor
+
+Mr. Rohan Verma
+
+📁 Repository Structure
+
+```
+smart-city-emergency-response-traffic-network/
+│
+├── backend/
+│   ├── include/
+│   │   ├── EmergencyDispatch.h
+│   │   ├── EmergencyVehicle.h
+│   │   ├── EmergencyVehicleList.h
+│   │   ├── RoadNetwork.h
+│   │   ├── ShortestPath.h
+│   │   ├── TrafficActionStack.h
+│   │   ├── TrafficQueue.h
+│   │   ├── TrafficSignal.h
+│   │   ├── TrafficSimulation.h
+│   │   └── WebServer.h
+│   └── src/
+│       ├── emergency_dispatch.cpp
+│       ├── emergency_vehicle.cpp
+│       ├── main.cpp
+│       ├── road_network.cpp
+│       ├── shortest_path.cpp
+│       ├── traffic_action_stack.cpp
+│       ├── traffic_priority.cpp
+│       ├── traffic_signal_queue.cpp
+│       ├── traffic_simulation.cpp
+│       └── web_server.cpp
+│
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
+│
+├── docs/
+│   └── Phase-1/
+│       ├── finalppt_phase1.pdf
+│       └── finalreport_phase1.pdf
+│
+├── .vscode/
+│   ├── tasks.json
+│   ├── launch.json
+│   └── c_cpp_properties.json
+│
+├── compile_and_run.bat
+├── run_web.bat
+├── run_console.bat
+└── README.md
+```

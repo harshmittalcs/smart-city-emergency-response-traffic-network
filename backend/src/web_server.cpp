@@ -84,7 +84,14 @@ static std::string extractJsonField(const std::string& json, const std::string& 
 std::string WebServer::readFileContent(const std::string& filepath)
 {
     std::ifstream file(filepath, std::ios::binary);
-    if (!file.is_open()) return "";
+    if (!file.is_open())
+    {
+        std::ifstream file2("frontend/" + filepath, std::ios::binary);
+        if (!file2.is_open()) return "";
+        std::stringstream buffer2;
+        buffer2 << file2.rdbuf();
+        return buffer2.str();
+    }
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();

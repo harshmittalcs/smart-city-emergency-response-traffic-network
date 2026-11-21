@@ -7,7 +7,8 @@
             "command": "g++",
             "args": [
                 "-std=c++17",
-                "*.cpp",
+                "-Ibackend/include",
+                "backend/src/*.cpp",
                 "-o",
                 "pbl_smart.exe",
                 "-lws2_32"
@@ -22,7 +23,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Compiles all .cpp files into pbl_smart.exe with Winsock library support"
+            "detail": "Compiles backend/src/*.cpp into pbl_smart.exe with Winsock library support"
         }
     ]
 }
