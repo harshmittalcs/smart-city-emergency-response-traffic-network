@@ -1,6 +1,40 @@
-Smart City Emergency Response & Traffic Network
+# Smart City Emergency Response & Traffic Network
 
 A data-structure-based system designed to improve emergency vehicle response by enabling efficient route selection and intelligent traffic management.
+
+---
+
+## 🌟 Interactive Web Dashboard & Real-Time Simulation
+
+An interactive Web Frontend dashboard has been integrated with the C++ Data Structures backend:
+- **Interactive City Map**: Built with HTML5 Canvas, visualizing intersections (nodes) and roads (weighted edges).
+- **Dijkstra Shortest Path Highlighting**: Computes the optimal emergency route in real time.
+- **Green Corridor Simulation**: Automatically changes traffic signals to GREEN along the route and animates the vehicle sprite moving node-by-node.
+- **FIFO Traffic Queue**: Live visual waiting line at the traffic intersection.
+- **LIFO Action Stack**: Real-time audit history of every operation.
+
+---
+
+## 🚀 How to Run the Project
+
+### Option 1: One-Click Web Mode
+Double-click `run_web.bat` or run:
+```powershell
+g++ -std=c++17 -Ibackend/include backend/src/*.cpp -o pbl_smart.exe -lws2_32
+.\pbl_smart.exe --web
+```
+This automatically starts the server and opens `http://localhost:8080/` in your browser.
+
+### Option 2: Console Menu Mode
+Double-click `run_console.bat` or run:
+```powershell
+.\pbl_smart.exe
+```
+
+### Option 3: Direct In-Browser View
+Double-click `frontend/index.html` (or `index.html`) to open directly in Google Chrome or Microsoft Edge.
+
+---
 
 📌 Project Overview
 
@@ -21,17 +55,15 @@ The project is being developed incrementally as part of the **Project-Based Lear
 
 🧠 Data Structures & Algorithms
 
-The project will make use of concepts from the Data Structures curriculum, including:
+The project makes use of concepts from the Data Structures curriculum, including:
 
-* Arrays
-* Linked Lists
-* Stacks
-* Queues
-* Trees
-* Graphs
-* Hashing
-
-Graph-based routing algorithms such as **Dijkstra's Algorithm** and **A*** may be explored for efficient route selection.
+* Arrays & Vectors
+* Linked Lists (`EmergencyVehicleList`)
+* Stacks (`TrafficActionStack`)
+* Queues (`TrafficQueue`)
+* Graphs & Adjacency Lists (`RoadNetwork`)
+* Priority Queue & Dijkstra's Algorithm (`ShortestPath`)
+* Hash Maps & Sets (`EmergencyDispatch`)
 
 📚 Phase 1 — Research & Analysis
 
@@ -49,28 +81,13 @@ Phase 1 Activities
 
 🛠️ Technology
 
-The implementation is planned using:
+The implementation is built using:
 
-* C / C++
+* C++17
 * Data Structures & Algorithms
+* HTML5, CSS3, JavaScript (Frontend Dashboard)
+* Winsock2 (Embedded Web Server & REST API)
 * Git & GitHub
-
-Additional technologies may be introduced in later phases as the system evolves.
-
-🔮 Future Scope
-
-The project is planned as a multi-phase development and may be extended with:
-
-* Dynamic traffic conditions
-* Emergency vehicle priority
-* Intelligent traffic signal management
-* Real-time route updates
-* Multiple emergency vehicles
-* Road congestion modelling
-* Advanced graph algorithms
-* Simulation of city-scale traffic networks
-* Backend/API integration
-* Visualization and analytics
 
 👥 Team
 
@@ -84,195 +101,50 @@ Mr. Rohan Verma
 
 📁 Repository Structure
 
+```
 smart-city-emergency-response-traffic-network/
 │
-├── README.md
+├── backend/
+│   ├── include/
+│   │   ├── EmergencyDispatch.h
+│   │   ├── EmergencyVehicle.h
+│   │   ├── EmergencyVehicleList.h
+│   │   ├── RoadNetwork.h
+│   │   ├── ShortestPath.h
+│   │   ├── TrafficActionStack.h
+│   │   ├── TrafficQueue.h
+│   │   ├── TrafficSignal.h
+│   │   ├── TrafficSimulation.h
+│   │   └── WebServer.h
+│   └── src/
+│       ├── emergency_dispatch.cpp
+│       ├── emergency_vehicle.cpp
+│       ├── main.cpp
+│       ├── road_network.cpp
+│       ├── shortest_path.cpp
+│       ├── traffic_action_stack.cpp
+│       ├── traffic_priority.cpp
+│       ├── traffic_signal_queue.cpp
+│       ├── traffic_simulation.cpp
+│       └── web_server.cpp
+│
+├── frontend/
+│   ├── index.html
+│   ├── style.css
+│   └── app.js
 │
 ├── docs/
 │   └── Phase-1/
+│       ├── finalppt_phase1.pdf
+│       └── finalreport_phase1.pdf
 │
-├── research/
-│   └── papers/
+├── .vscode/
+│   ├── tasks.json
+│   ├── launch.json
+│   └── c_cpp_properties.json
 │
-└── src/
-    └── Phase-1/
-
-
-📌 Project Status
-
-Phase 1 — Research & Initial Analysis
-
-Further implementation and system development will be carried out in subsequent phases.
-
-
-Phase 2 — Implementation and System Development
-
-Status: Planned development phase.
-
-Phase II will focus on converting the proposed design into a working C++ prototype. The main goal is to implement the road network, route optimization, emergency vehicle handling, and simulated traffic signal prioritization.
-
-Module 1: Road Network Modelling
-
-The city road network will be represented as a graph.
-
-Each intersection will be represented by a vertex, while each connecting road will be represented by an edge.
-
-Each edge can store information such as:
-
-Starting intersection.
-Destination intersection.
-Road distance.
-Estimated travel time.
-Traffic-related weight.
-
-Example:
-
-Suppose the road network contains four intersections: A, B, C, and D.
-
-The connections are:
-
-A → B: 5 minutes.
-A → C: 3 minutes.
-C → B: 1 minute.
-B → D: 4 minutes.
-C → D: 6 minutes.
-
-The system can evaluate different routes from A to D and select the route with the lowest total weight.
-
-For example:
-
-Route A → B → D = 9 minutes.
-Route A → C → D = 9 minutes.
-Route A → C → B → D = 8 minutes.
-
-Therefore, the third route has the lowest estimated travel time under these example conditions.
-
-Module 2: Emergency Vehicle Input
-
-The system will accept the basic information required to process an emergency request.
-
-Possible inputs include:
-
-Emergency vehicle type, such as an ambulance or fire engine.
-Starting intersection.
-Destination intersection.
-Road network information.
-Estimated traffic conditions.
-
-The starting point and destination will be used by the route optimization module to calculate a suitable path.
-
-Module 3: Route Optimization
-
-This module will calculate an efficient route between the emergency vehicle's starting point and destination.
-
-Proposed algorithm: Dijkstra's algorithm.
-
-The algorithm will:
-
-Take the source and destination intersections.
-Examine the connected roads.
-Calculate the minimum accumulated route weight.
-Store the preceding intersection for each visited location.
-Reconstruct the selected route.
-Display the route and its estimated cost.
-
-If the graph uses estimated travel time as its edge weight, the algorithm will find the minimum-time route according to those weights, provided they are non-negative and fixed during the calculation.
-
-Module 4: Traffic Signal Prioritization
-
-After selecting a route, the system will identify the intersections through which the emergency vehicle is expected to travel.
-
-It will then simulate priority at the relevant traffic signals.
-
-The module will:
-
-Read the selected route.
-Identify the intersections along that route.
-Mark the relevant signals for emergency priority.
-Simulate reduced waiting at those intersections.
-Avoid unnecessarily prioritizing signals that are not part of the selected route.
-
-This is the central feature of the project: route selection and traffic signal prioritization work together.
-
-The project will simulate signal priority in software; it will not directly control physical traffic signals.
-
-Module 5: Traffic Condition Simulation
-
-The system will test the routing process under different traffic conditions.
-
-Possible scenarios include:
-
-Low traffic.
-Moderate traffic.
-Heavy traffic.
-Increased delays at selected intersections.
-Alternative road connections with different travel times.
-
-Road weights can be changed between scenarios to observe whether the selected route changes.
-
-For the initial prototype, traffic conditions can be entered manually or generated using predefined test cases.
-
-Module 6: Response-Time Calculation
-
-This module will calculate and compare the estimated performance of the system.
-
-The following measurements can be recorded:
-
-Parameter	Purpose
-Route distance	Measures the distance travelled.
-Estimated travel time	Measures the predicted journey duration.
-Signal waiting time	Estimates time lost at intersections.
-Total response time	Measures the overall estimated time to reach the destination.
-Number of prioritized signals	Counts signals selected for emergency priority.
-
-The system can compare two cases:
-
-Normal case: The vehicle follows a route without the proposed priority mechanism.
-
-Optimized case: The vehicle follows the selected route and receives simulated priority at relevant signals.
-
-The results will help evaluate whether the combined approach improves estimated response efficiency.
-
-Module 7: Testing and Integration
-
-All implemented modules will be integrated into one working application.
-
-Testing will include:
-
-Checking route calculations.
-Testing disconnected intersections.
-Verifying that the selected signals belong to the chosen route.
-Comparing different traffic scenarios.
-Checking calculations for travel time and signal waiting time.
-Testing invalid source and destination inputs.
-Comparing normal and optimized simulation results.
-Expected Deliverables of Phase II
-
-By the end of this phase, the target deliverables are:
-
-A C++ road network representation.
-A working route optimization algorithm.
-Emergency vehicle source and destination input.
-A simulated traffic signal prioritization mechanism.
-Traffic scenario simulation.
-Response-time and route comparison.
-Integrated program modules.
-Initial testing results and implementation documentation.
-
-Phase III — Testing and Evaluation
-
-After development, the integrated system will be tested using multiple simulated road networks and traffic conditions.
-
-Activities
-Test different source and destination combinations.
-Compare route selection under different edge weights.
-Evaluate signal prioritization.
-Measure estimated travel time and intersection waiting time.
-Compare normal and optimized cases.
-Identify limitations and possible improvements.
-Expected Outcome
-
-The project will produce simulation results showing how the proposed approach performs under the tested conditions.
-
-Any claimed improvement in response time should be supported by actual test results rather than assumed in advance.
-
+├── compile_and_run.bat
+├── run_web.bat
+├── run_console.bat
+└── README.md
+```

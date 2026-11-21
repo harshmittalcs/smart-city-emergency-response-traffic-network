@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include <string>
 #include <limits>
@@ -11,8 +10,9 @@
 #include "ShortestPath.h"
 #include "EmergencyDispatch.h"
 #include "TrafficSimulation.h"
+#include "WebServer.h"
 
-int main()
+int main(int argc, char* argv[])
 {
     EmergencyVehicleList vehicles;
     TrafficQueue queue;
@@ -22,24 +22,52 @@ int main()
     ShortestPath shortestPath;
     EmergencyDispatch dispatch(vehicles, network);
     TrafficSimulation simulation(network, dispatch, signal, history);
+    std::vector<DispatchResult> activeDispatches;
+
+    WebServer webServer(
+        vehicles,
+        queue,
+        signal,
+        history,
+        network,
+        shortestPath,
+        dispatch,
+        simulation,
+        activeDispatches
+    );
+
+    // If launched with --web or -w, directly launch the Web Frontend server
+    if (argc > 1)
+    {
+        std::string arg = argv[1];
+        if (arg == "--web" || arg == "-w" || arg == "--server" || arg == "-s")
+        {
+            int port = 8080;
+            if (argc > 2)
+            {
+                try { port = std::stoi(argv[2]); } catch (...) {}
+            }
+            webServer.start(port);
+            return 0;
+        }
+    }
 
     int choice = 0;
     int source, destination, distance;
     std::string number, type, name;
-    std::vector<DispatchResult> activeDispatches;
 
     do
     {
         std::cout << "\n===== SMART CITY EMERGENCY RESPONSE SYSTEM =====\n";
-        std::cout << "1. Register Emergency Vehicle\n";
-        std::cout << "2. Display Registered Vehicles\n";
-        std::cout << "3. Add Vehicle to Traffic Queue\n";
-        std::cout << "4. Display Traffic Queue\n";
-        std::cout << "5. Allow Front Vehicle to Pass\n";
-        std::cout << "6. Give Emergency Signal Priority\n";
-        std::cout << "7. Display Action History\n";
-        std::cout << "8. Remove Registered Vehicle\n";
-        std::cout << "9. Reset Traffic Signal\n";
+        std::cout << "1.  Register Emergency Vehicle\n";
+        std::cout << "2.  Display Registered Vehicles\n";
+        std::cout << "3.  Add Vehicle to Traffic Queue\n";
+        std::cout << "4.  Display Traffic Queue\n";
+        std::cout << "5.  Allow Front Vehicle to Pass\n";
+        std::cout << "6.  Give Emergency Signal Priority\n";
+        std::cout << "7.  Display Action History\n";
+        std::cout << "8.  Remove Registered Vehicle\n";
+        std::cout << "9.  Reset Traffic Signal\n";
         std::cout << "10. Display Traffic Signal\n";
         std::cout << "11. Add Intersection\n";
         std::cout << "12. Add Road\n";
@@ -50,6 +78,8 @@ int main()
         std::cout << "17. Simulate Emergency Route\n";
         std::cout << "18. Display Vehicle Locations\n";
         std::cout << "19. Exit\n";
+        std::cout << "20. Launch Web Frontend UI (http://localhost:8080)\n";
+        std::cout << "21. Load Sample City Map Data\n";
         std::cout << "Enter choice: ";
 
         if (!(std::cin >> choice))
@@ -360,6 +390,15 @@ int main()
 
             case 19:
                 std::cout << "Exiting system.\n";
+                break;
+
+            case 20:
+                webServer.start(8080);
+                break;
+
+            case 21:
+                webServer.loadSampleData();
+                std::cout << "Sample city map data loaded successfully!\n";
                 break;
 
             default:

@@ -1,4 +1,3 @@
-
 #ifndef EMERGENCY_DISPATCH_H
 #define EMERGENCY_DISPATCH_H
 
@@ -46,6 +45,8 @@ public:
     bool isVehicleAssigned(std::string number) const;
     void removeVehicleLocation(std::string number);
     void displayVehicleLocations() const;
+    const std::unordered_map<std::string, int>& getVehicleLocations() const { return vehicleLocations; }
+    const std::unordered_set<std::string>& getBusyVehicles() const { return busyVehicles; }
 };
 
 #endif

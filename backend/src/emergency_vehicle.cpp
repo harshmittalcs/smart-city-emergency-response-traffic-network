@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "EmergencyVehicleList.h"
 #include "TrafficQueue.h"
@@ -131,4 +130,18 @@ void EmergencyVehicleList::removeVehicle(
     delete temp;
 
     std::cout << "Vehicle removed successfully.\n";
+}
+
+std::vector<EmergencyVehicle*> EmergencyVehicleList::getVehicles() const
+{
+    std::vector<EmergencyVehicle*> list;
+    EmergencyVehicle* temp = head;
+
+    while (temp != nullptr)
+    {
+        list.push_back(temp);
+        temp = temp->vehicleNext;
+    }
+
+    return list;
 }
