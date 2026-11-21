@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "shell",
+            "label": "Build PBL Smart City Project",
+            "command": "g++",
+            "args": [
+                "-std=c++17",
+                "-Ibackend/include",
+                "backend/src/*.cpp",
+                "-o",
+                "pbl_smart.exe",
+                "-lws2_32"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compiles backend/src/*.cpp into pbl_smart.exe with Winsock library support"
+        }
+    ]
+}

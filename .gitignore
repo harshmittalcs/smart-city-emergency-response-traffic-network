@@ -1,0 +1,14 @@
+# Compiled Executables and Binaries
+*.exe
+*.o
+*.obj
+*.out
+*.app
+
+# Debug and symbols
+*.pdb
+*.ilk
+
+# Temporary / OS files
+Thumbs.db
+.DS_Store

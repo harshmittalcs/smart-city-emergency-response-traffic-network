@@ -1,4 +1,3 @@
-
 #ifndef TRAFFIC_SIGNAL_H
 #define TRAFFIC_SIGNAL_H
 
@@ -17,6 +16,8 @@ public:
     void givePriority();
     void resetSignal();
     void displaySignal();
+    std::string getSignal() const { return signal; }
+    bool isEmergency() const { return emergency; }
 };
 
 #endif

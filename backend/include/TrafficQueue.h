@@ -1,7 +1,7 @@
-
 #ifndef TRAFFIC_QUEUE_H
 #define TRAFFIC_QUEUE_H
 
+#include <vector>
 #include "EmergencyVehicle.h"
 
 class TrafficQueue
@@ -18,6 +18,7 @@ public:
     EmergencyVehicle* dequeue();
     void display();
     int queueSize();
+    std::vector<EmergencyVehicle*> getQueue() const;
 };
 
 #endif

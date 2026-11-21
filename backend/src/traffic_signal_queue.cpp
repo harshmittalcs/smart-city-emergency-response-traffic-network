@@ -115,3 +115,17 @@ int TrafficQueue::queueSize()
 
     return count;
 }
+
+std::vector<EmergencyVehicle*> TrafficQueue::getQueue() const
+{
+    std::vector<EmergencyVehicle*> list;
+    EmergencyVehicle* temp = front;
+
+    while (temp != nullptr)
+    {
+        list.push_back(temp);
+        temp = temp->queueNext;
+    }
+
+    return list;
+}
