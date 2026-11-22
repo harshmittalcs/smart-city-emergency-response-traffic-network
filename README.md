@@ -78,6 +78,20 @@ Phase 1 Activities
 * Identification of suitable data structures
 * Initial system planning
 * Definition of future development scope
+  
+
+🧩 Phase 2 — Design & Module Development
+
+Phase 2 turns the Phase 1 idea into a buildable design: a software simulation split into nine modules, each tied to a data structure.
+
+Phase 2 Activities Reworked the architecture into nine modules Mapped each module to a data structure Defined the road network model and congestion-weighted edges Defined the signal priority rule Started coding the graph and shortest-path modules
+
+
+🛠️ Phase 3 — Integration, Front End & Testing
+
+Phase 3 moves from design to a working program, with all modules integrated and a web dashboard added.
+
+Phase 3 Activities Implemented and integrated all nine modules Added the web dashboard Created sample road layouts and traffic scenarios Tested the data structures, shortest path and full flow Normal vs optimized comparison in progress
 
 🛠️ Technology
 
@@ -92,12 +106,6 @@ The implementation is built using:
 👥 Team
 
 Team ID: DSCPP-III-2026-T230
-
-Section: A, G, E
-
-👨‍🏫 Mentor
-
-Mr. Rohan Verma
 
 📁 Repository Structure
 
