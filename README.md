@@ -78,12 +78,14 @@ Phase 1 Activities
 * Identification of suitable data structures
 * Initial system planning
 * Definition of future development scope
+  
 
 🧩 Phase 2 — Design & Module Development
 
 Phase 2 turns the Phase 1 idea into a buildable design: a software simulation split into nine modules, each tied to a data structure.
 
 Phase 2 Activities Reworked the architecture into nine modules Mapped each module to a data structure Defined the road network model and congestion-weighted edges Defined the signal priority rule Started coding the graph and shortest-path modules
+
 
 🛠️ Phase 3 — Integration, Front End & Testing
 
