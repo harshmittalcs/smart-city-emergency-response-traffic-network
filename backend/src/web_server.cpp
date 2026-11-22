@@ -84,14 +84,7 @@ static std::string extractJsonField(const std::string& json, const std::string& 
 std::string WebServer::readFileContent(const std::string& filepath)
 {
     std::ifstream file(filepath, std::ios::binary);
-    if (!file.is_open())
-    {
-        std::ifstream file2("frontend/" + filepath, std::ios::binary);
-        if (!file2.is_open()) return "";
-        std::stringstream buffer2;
-        buffer2 << file2.rdbuf();
-        return buffer2.str();
-    }
+    if (!file.is_open()) return "";
     std::stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
@@ -409,6 +402,28 @@ std::string WebServer::handleApiRequest(const std::string& method, const std::st
         network.addRoad(src, dest, dist);
         history.push("Added road between " + network.getIntersectionName(src) + " and " + network.getIntersectionName(dest) + " (" + std::to_string(dist) + " km)");
         return "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n{\"success\":true}";
+    }
+
+    if (method == "POST" && path == "/api/network/remove-road")
+    {
+        int src = -1, dest = -1;
+        try {
+            src = std::stoi(extractJsonField(body, "source"));
+            dest = std::stoi(extractJsonField(body, "destination"));
+        } catch (...) {}
+
+        if (src < 0 || dest < 0)
+        {
+            return "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n{\"success\":false,\"error\":\"Invalid parameters\"}";
+        }
+
+        bool ok = network.removeRoad(src, dest);
+        if (ok)
+        {
+            history.push("Removed road between " + network.getIntersectionName(src) + " and " + network.getIntersectionName(dest));
+            return "HTTP/1.1 200 OK\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n{\"success\":true}";
+        }
+        return "HTTP/1.1 400 Bad Request\r\nContent-Type: application/json\r\nAccess-Control-Allow-Origin: *\r\n\r\n{\"success\":false,\"error\":\"Road not found\"}";
     }
 
     if (method == "POST" && path == "/api/dispatch")

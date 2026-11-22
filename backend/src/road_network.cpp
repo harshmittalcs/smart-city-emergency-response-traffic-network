@@ -1,4 +1,3 @@
-
 #include <iostream>
 #include "RoadNetwork.h"
 
@@ -49,6 +48,38 @@ void RoadNetwork::addRoad(int source, int destination, int distance)
     roads[destination].push_back({source, distance});
 
     std::cout << "Road added successfully.\n";
+}
+
+bool RoadNetwork::removeRoad(int source, int destination)
+{
+    if (!isValidIntersection(source) || !isValidIntersection(destination))
+    {
+        return false;
+    }
+
+    bool removed = false;
+    auto& rSrc = roads[source];
+    for (auto it = rSrc.begin(); it != rSrc.end(); ++it)
+    {
+        if (it->first == destination)
+        {
+            rSrc.erase(it);
+            removed = true;
+            break;
+        }
+    }
+
+    auto& rDest = roads[destination];
+    for (auto it = rDest.begin(); it != rDest.end(); ++it)
+    {
+        if (it->first == source)
+        {
+            rDest.erase(it);
+            break;
+        }
+    }
+
+    return removed;
 }
 
 void RoadNetwork::displayNetwork() const
