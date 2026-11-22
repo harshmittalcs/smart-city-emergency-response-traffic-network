@@ -81,32 +81,24 @@ Phase 1 Activities
 
   🧩 Phase 2 — Design & Module Development
 
-Phase 2 narrows the Phase 1 concept into a buildable design. The original seven-block architecture (including live sensors and a notification layer) was reduced to a software simulation with simulated inputs, and reworked into nine modules in three layers, each tied to a course data structure.
+Phase 2 turns the Phase 1 idea into a buildable design: a software simulation split into nine modules, each tied to a data structure.
 
 Phase 2 Activities
-Reworked the architecture into nine code modules (data, logic and simulation layers)
-Mapped each module to a data structure (linked list, queue, stack, graph)
-Defined the road network model: intersections as nodes, roads as weighted edges
-Designed congestion-aware routing: edge weight = road length × congestion factor, so Dijkstra's algorithm needs no changes
-Defined the priority rule: emergency vehicles go first, ties broken by earlier arrival
-Planned vehicle registration, search and dispatch flow
-Agreed on shared header types and one .h / .cpp pair per module
-Started coding with the graph and shortest-path modules
+Reworked the architecture into nine modules
+Mapped each module to a data structure
+Defined the road network model and congestion-weighted edges
+Defined the signal priority rule
+Started coding the graph and shortest-path modules
 🛠️ Phase 3 — Integration, Front End & Testing
 
-Phase 3 moves the project from design to a working program. The modules are coded and joined together, and a web dashboard was added to visualize the routing and signal logic running in the C++ backend.
+Phase 3 moves from design to a working program, with all modules integrated and a web dashboard added.
 
 Phase 3 Activities
-Implemented all nine modules and integrated them into one program
-Built the menu-driven console controller (main)
-Added the web dashboard (interactive map, route highlighting, green corridor animation, live queue and stack)
-Fixed integration issues by moving shared types into common headers
-Reviewed memory handling in the linked list, queue and stack
-Tuned congestion factors and the priority rule using simulation results
+Implemented and integrated all nine modules
+Added the web dashboard
 Created sample road layouts and traffic scenarios
-Ran unit tests (list, queue, stack), shortest-path checks against hand-worked graphs, and integration tests
-Normal vs. optimized route comparison (distance, travel time, waiting time) is in progress.
-
+Tested the data structures, shortest path and full flow
+Normal vs. optimized comparison in progress
 🛠️ Technology
 
 The implementation is built using:
