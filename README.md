@@ -79,6 +79,34 @@ Phase 1 Activities
 * Initial system planning
 * Definition of future development scope
 
+  🧩 Phase 2 — Design & Module Development
+
+Phase 2 narrows the Phase 1 concept into a buildable design. The original seven-block architecture (including live sensors and a notification layer) was reduced to a software simulation with simulated inputs, and reworked into nine modules in three layers, each tied to a course data structure.
+
+Phase 2 Activities
+Reworked the architecture into nine code modules (data, logic and simulation layers)
+Mapped each module to a data structure (linked list, queue, stack, graph)
+Defined the road network model: intersections as nodes, roads as weighted edges
+Designed congestion-aware routing: edge weight = road length × congestion factor, so Dijkstra's algorithm needs no changes
+Defined the priority rule: emergency vehicles go first, ties broken by earlier arrival
+Planned vehicle registration, search and dispatch flow
+Agreed on shared header types and one .h / .cpp pair per module
+Started coding with the graph and shortest-path modules
+🛠️ Phase 3 — Integration, Front End & Testing
+
+Phase 3 moves the project from design to a working program. The modules are coded and joined together, and a web dashboard was added to visualize the routing and signal logic running in the C++ backend.
+
+Phase 3 Activities
+Implemented all nine modules and integrated them into one program
+Built the menu-driven console controller (main)
+Added the web dashboard (interactive map, route highlighting, green corridor animation, live queue and stack)
+Fixed integration issues by moving shared types into common headers
+Reviewed memory handling in the linked list, queue and stack
+Tuned congestion factors and the priority rule using simulation results
+Created sample road layouts and traffic scenarios
+Ran unit tests (list, queue, stack), shortest-path checks against hand-worked graphs, and integration tests
+Normal vs. optimized route comparison (distance, travel time, waiting time) is in progress.
+
 🛠️ Technology
 
 The implementation is built using:
@@ -100,8 +128,6 @@ Section: A, G, E
 Mr. Rohan Verma
 
 📁 Repository Structure
-
-```
 smart-city-emergency-response-traffic-network/
 │
 ├── backend/
@@ -134,9 +160,15 @@ smart-city-emergency-response-traffic-network/
 │   └── app.js
 │
 ├── docs/
-│   └── Phase-1/
-│       ├── finalppt_phase1.pdf
-│       └── finalreport_phase1.pdf
+│   ├── Phase-1/
+│   │   ├── finalppt_phase1.pdf
+│   │   └── finalreport_phase1.pdf
+│   ├── Phase-2/
+│   │   ├── finalppt_phase2.pdf
+│   │   └── finalreport_phase2.pdf
+│   └── Phase-3/
+│       ├── finalppt_phase3.pdf
+│       └── finalreport_phase3.pdf
 │
 ├── .vscode/
 │   ├── tasks.json
@@ -147,4 +179,3 @@ smart-city-emergency-response-traffic-network/
 ├── run_web.bat
 ├── run_console.bat
 └── README.md
-```
