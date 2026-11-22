@@ -14,6 +14,7 @@ private:
 public:
     int addIntersection(std::string name);
     void addRoad(int source, int destination, int distance);
+    bool removeRoad(int source, int destination);
     void displayNetwork() const;
     void displayIntersections() const;
     int getIntersectionCount() const;
