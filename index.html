@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <!-- Header Bar -->
   <header class="navbar">
     <div class="nav-brand">
       <div class="logo-icon">🚨</div>
@@ -32,7 +31,6 @@
     </div>
   </header>
 
-  <!-- Top KPI Cards -->
   <section class="kpi-strip">
     <div class="kpi-card">
       <div class="kpi-icon signal-icon" id="kpiSignalIcon">🚦</div>
@@ -80,9 +78,7 @@
     </div>
   </section>
 
-  <!-- Main Container -->
   <main class="main-layout">
-    <!-- Left Column: Interactive City Graph Canvas -->
     <section class="map-section card">
       <div class="card-header">
         <div class="card-title">
@@ -103,7 +99,6 @@
         <div class="canvas-overlay" id="canvasOverlay">
           <div class="overlay-pill">Click any intersection node to select it as Destination</div>
         </div>
-        <!-- Active Simulation Floating Banner -->
         <div class="sim-banner hidden" id="simBanner">
           <div class="sim-banner-content">
             <span class="spinner"></span>
@@ -118,7 +113,6 @@
         </div>
       </div>
 
-      <!-- Traffic Signal & Queue Control Strip underneath Map -->
       <div class="signal-queue-strip">
         <div class="traffic-light-box">
           <div class="light-housing">
@@ -148,9 +142,7 @@
       </div>
     </section>
 
-    <!-- Right Column: Operations Panel -->
     <aside class="control-panel">
-      <!-- Tab Navigation -->
       <nav class="tabs-nav">
         <button class="tab-btn active" data-tab="tab-dispatch">
           <span class="tab-icon">🚨</span> Dispatch
@@ -166,7 +158,6 @@
         </button>
       </nav>
 
-      <!-- Tab 1: Emergency Dispatch -->
       <div class="tab-content active" id="tab-dispatch">
         <div class="card panel-card">
           <div class="panel-header">
@@ -196,7 +187,6 @@
             </button>
           </form>
 
-          <!-- Dispatch Result Box -->
           <div class="dispatch-result-box hidden" id="dispatchResultBox">
             <div class="result-header">
               <span class="badge badge-success">Dispatch Confirmed</span>
@@ -209,7 +199,6 @@
               <div><strong>To:</strong> <span id="resultDest">City Center</span></div>
             </div>
             <div class="route-path-flow" id="resultPathFlow">
-              <!-- Path steps rendered dynamically -->
             </div>
             <button class="btn btn-warning btn-block btn-sim" id="btnSimulateRoute">
               ▶️ Simulate Green Corridor Route
@@ -218,7 +207,6 @@
         </div>
       </div>
 
-      <!-- Tab 2: Vehicle Fleet Management -->
       <div class="tab-content" id="tab-vehicles">
         <div class="card panel-card">
           <div class="panel-header">
@@ -226,7 +214,6 @@
             <p>Register, locate, and enqueue emergency vehicles</p>
           </div>
 
-          <!-- Add Vehicle Sub-card -->
           <div class="sub-form-section">
             <h4>Register New Vehicle</h4>
             <form id="addVehicleForm" class="inline-form">
@@ -240,7 +227,6 @@
             </form>
           </div>
 
-          <!-- Assign Location Sub-card -->
           <div class="sub-form-section">
             <h4>Assign Vehicle Location</h4>
             <form id="setLocationForm" class="inline-form">
@@ -254,7 +240,6 @@
             </form>
           </div>
 
-          <!-- Add to Signal Queue -->
           <div class="sub-form-section">
             <h4>Add to Traffic Queue</h4>
             <form id="enqueueForm" class="inline-form">
@@ -265,7 +250,6 @@
             </form>
           </div>
 
-          <!-- Fleet List Table -->
           <div class="table-wrapper">
             <table class="data-table">
               <thead>
@@ -285,7 +269,6 @@
         </div>
       </div>
 
-      <!-- Tab 3: Road Network Builder -->
       <div class="tab-content" id="tab-network">
         <div class="card panel-card">
           <div class="panel-header">
@@ -293,7 +276,6 @@
             <p>Add intersections and bidirectional weighted roads</p>
           </div>
 
-          <!-- Add Intersection -->
           <div class="sub-form-section">
             <h4>Add Intersection</h4>
             <form id="addIntersectionForm" class="inline-form">
@@ -302,7 +284,6 @@
             </form>
           </div>
 
-          <!-- Add Road -->
           <div class="sub-form-section">
             <h4>Connect Road (Edge)</h4>
             <form id="addRoadForm" class="control-form">
@@ -328,7 +309,6 @@
             </form>
           </div>
 
-          <!-- Intersections & Roads List -->
           <div class="table-wrapper">
             <table class="data-table">
               <thead>
@@ -346,7 +326,6 @@
         </div>
       </div>
 
-      <!-- Tab 4: Action History (Stack) -->
       <div class="tab-content" id="tab-history">
         <div class="card panel-card">
           <div class="panel-header">
@@ -361,7 +340,6 @@
     </aside>
   </main>
 
-  <!-- Notification Toast -->
   <div class="toast-container" id="toastContainer"></div>
 
   <script src="app.js"></script>
