@@ -89,6 +89,8 @@ Mapped each module to a data structure
 Defined the road network model and congestion-weighted edges
 Defined the signal priority rule
 Started coding the graph and shortest-path modules
+
+
 🛠️ Phase 3 — Integration, Front End & Testing
 
 Phase 3 moves from design to a working program, with all modules integrated and a web dashboard added.
@@ -99,6 +101,7 @@ Added the web dashboard
 Created sample road layouts and traffic scenarios
 Tested the data structures, shortest path and full flow
 Normal vs. optimized comparison in progress
+
 🛠️ Technology
 
 The implementation is built using:
