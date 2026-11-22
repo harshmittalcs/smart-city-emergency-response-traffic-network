@@ -1,9 +1,3 @@
-/**
- * SMART CITY EMERGENCY RESPONSE SYSTEM - FRONTEND ENGINE
- * Connects with C++ backend via REST API (with offline standalone fallback)
- */
-
-// Application State
 const state = {
   isBackendConnected: false,
   signal: { state: "RED", isEmergency: false },
@@ -14,10 +8,9 @@ const state = {
   history: [],
   activeDispatches: [],
   selectedDestinationId: null,
-  activePathHighlight: null, // array of node IDs for current shortest path
-  animatingVehicle: null, // { vehicleNumber, type, path: [], stepIndex: 0, progress: 0, x, y }
+  activePathHighlight: null,
+  animatingVehicle: null,
 
-  // Interactive UI & Workflow State
   activeTab: "tab-dispatch",
   networkSelectedSource: null,
   networkSelectedDest: null,
@@ -28,15 +21,13 @@ const state = {
   dragStartY: 0
 };
 
-// Canvas & Viewport Coordinates
 const canvas = document.getElementById("cityCanvas");
 const ctx = canvas.getContext("2d");
 let canvasWidth = 750;
 let canvasHeight = 480;
-let nodePositions = {}; // id -> { x, y, name, custom }
+let nodePositions = {};
 let hoveredNodeId = null;
 
-// DOM Elements
 const backendPill = document.getElementById("backendPill");
 const statusDot = document.getElementById("statusDot");
 const backendStatus = document.getElementById("backendStatus");
@@ -48,7 +39,6 @@ const closeModalBtn = document.getElementById("closeModalBtn");
 const mapModeBadge = document.getElementById("mapModeBadge");
 const overlayText = document.getElementById("overlayText");
 
-// KPI elements
 const kpiSignalValue = document.getElementById("kpiSignalValue");
 const kpiSignalBadge = document.getElementById("kpiSignalBadge");
 const kpiQueueCount = document.getElementById("kpiQueueCount");
@@ -56,7 +46,6 @@ const kpiFleetCount = document.getElementById("kpiFleetCount");
 const kpiIntersectionsCount = document.getElementById("kpiIntersectionsCount");
 const kpiDispatchesCount = document.getElementById("kpiDispatchesCount");
 
-// Signal elements
 const lightRed = document.getElementById("lightRed");
 const lightYellow = document.getElementById("lightYellow");
 const lightGreen = document.getElementById("lightGreen");
@@ -67,7 +56,6 @@ const resetSignalBtn = document.getElementById("resetSignalBtn");
 const dequeueBtn = document.getElementById("dequeueBtn");
 const queueTrack = document.getElementById("queueTrack");
 
-// Tab and Form elements
 const dispatchForm = document.getElementById("dispatchForm");
 const emergencyTypeSelect = document.getElementById("emergencyTypeSelect");
 const dispatchDestSelect = document.getElementById("dispatchDestSelect");
@@ -80,7 +68,6 @@ const resultDest = document.getElementById("resultDest");
 const resultPathFlow = document.getElementById("resultPathFlow");
 const btnSimulateRoute = document.getElementById("btnSimulateRoute");
 
-// Fleet forms
 const addVehicleForm = document.getElementById("addVehicleForm");
 const vehicleNumInput = document.getElementById("vehicleNumInput");
 const vehicleTypeInput = document.getElementById("vehicleTypeInput");
@@ -91,7 +78,6 @@ const enqueueForm = document.getElementById("enqueueForm");
 const queueVehicleSelect = document.getElementById("queueVehicleSelect");
 const fleetTableBody = document.getElementById("fleetTableBody");
 
-// Network forms & elements
 const addIntersectionForm = document.getElementById("addIntersectionForm");
 const intersectionNameInput = document.getElementById("intersectionNameInput");
 const addRoadForm = document.getElementById("addRoadForm");
@@ -105,7 +91,6 @@ const btnClearMapSelection = document.getElementById("btnClearMapSelection");
 const intersectionsTableBody = document.getElementById("intersectionsTableBody");
 const roadsTableBody = document.getElementById("roadsTableBody");
 
-// History & Simulation
 const historyList = document.getElementById("historyList");
 const simBanner = document.getElementById("simBanner");
 const simVehicleTitle = document.getElementById("simVehicleTitle");
@@ -113,9 +98,6 @@ const simStatusSub = document.getElementById("simStatusSub");
 const simProgressFill = document.getElementById("simProgressFill");
 const resetMapZoomBtn = document.getElementById("resetMapZoomBtn");
 
-// ==========================================
-// TOAST NOTIFICATIONS
-// ==========================================
 function showToast(message, type = "info") {
   const container = document.getElementById("toastContainer");
   if (!container) return;
@@ -131,39 +113,30 @@ function showToast(message, type = "info") {
   }, 3500);
 }
 
-// Live Clock
 setInterval(() => {
   const now = new Date();
   if (liveClock) liveClock.textContent = now.toTimeString().split(" ")[0];
 }, 1000);
 
-// ==========================================
-// TABS & WORKFLOW PIPELINE HANDLING
-// ==========================================
 function switchTab(tabId) {
   state.activeTab = tabId;
 
-  // Update Tab buttons
   document.querySelectorAll(".tab-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.tab === tabId);
   });
 
-  // Update Tab contents
   document.querySelectorAll(".tab-content").forEach(c => {
     c.classList.toggle("active", c.id === tabId);
   });
 
-  // Update Pipeline Stepper Steps
   document.querySelectorAll(".pipeline-step").forEach(step => {
     step.classList.toggle("active", step.dataset.step === tabId);
   });
 
-  // Reset road connecting map selection if switching away from network
   if (tabId !== "tab-network") {
     clearMapRoadSelection();
   }
 
-  // Update Map Mode Badge & Overlay
   updateMapModeUI();
 }
 
@@ -211,7 +184,6 @@ document.querySelectorAll(".pipeline-step").forEach(step => {
   step.addEventListener("click", () => switchTab(step.dataset.step));
 });
 
-// Modal Architecture Guide Open/Close
 if (openDsaGuideBtn && dsaGuideModal) {
   openDsaGuideBtn.addEventListener("click", () => {
     dsaGuideModal.classList.remove("hidden");
@@ -232,7 +204,6 @@ if (dsaGuideModal) {
   });
 }
 
-// Clear map road selection
 function clearMapRoadSelection() {
   state.networkSelectedSource = null;
   state.networkSelectedDest = null;
@@ -256,9 +227,6 @@ if (btnClearMapSelection) {
   });
 }
 
-// ==========================================
-// API & BACKEND COMMUNICATION LAYER
-// ==========================================
 async function apiCall(endpoint, method = "GET", data = null) {
   try {
     const options = {
@@ -279,11 +247,9 @@ async function apiCall(endpoint, method = "GET", data = null) {
   }
 }
 
-// Fetch Full System Status
 async function syncSystemState() {
   try {
     const data = await apiCall("/api/status");
-    // Update state from backend
     state.isBackendConnected = true;
     state.signal = data.signal || { state: "RED", isEmergency: false };
     state.queue = data.queue || [];
@@ -296,7 +262,6 @@ async function syncSystemState() {
     updateConnectionStatus(true);
     renderUI();
   } catch (err) {
-    // If backend is not running, fallback to client-side standalone simulation
     if (state.isBackendConnected) {
       console.warn("Backend disconnected, switching to In-Browser mode", err);
     }
@@ -319,10 +284,6 @@ function updateConnectionStatus(online) {
   }
 }
 
-// ==========================================
-// FALLBACK CLIENT-SIDE SIMULATION ENGINE
-// (Ensures the UI is 100% functional even offline!)
-// ==========================================
 function initFallbackDataIfEmpty() {
   if (state.intersections.length === 0) {
     state.intersections = [
@@ -367,7 +328,6 @@ function initFallbackDataIfEmpty() {
   }
 }
 
-// Dijkstra Shortest Path in JS (mirrors C++ shortest_path.cpp)
 function runClientDijkstra(sourceId, destId) {
   const n = state.intersections.length;
   const dist = new Array(n).fill(Infinity);
@@ -389,7 +349,6 @@ function runClientDijkstra(sourceId, destId) {
     if (u === -1 || u === destId) break;
     visited[u] = true;
 
-    // Find neighbors of u
     state.roads.forEach(r => {
       let v = -1, w = r.distance;
       if (r.source === u) v = r.destination;
@@ -416,9 +375,6 @@ function runClientDijkstra(sourceId, destId) {
   return { found: true, distance: dist[destId], path };
 }
 
-// ==========================================
-// RENDER UI & UPDATE ALL COMPONENTS
-// ==========================================
 function renderUI() {
   updateKPIs();
   updateTrafficLight();
@@ -495,7 +451,6 @@ function updateQueueDisplay() {
   });
 }
 
-// Track previous items signature so we do not needlessly re-render dropdowns if data hasn't changed!
 let lastIntersectionsSignature = "";
 let lastVehiclesSignature = "";
 
@@ -503,7 +458,6 @@ function updateDropdowns() {
   const currentIntersectionsSig = state.intersections.map(i => `${i.id}:${i.name}`).join("|");
   const currentVehiclesSig = state.vehicles.map(v => `${v.number}:${v.locationName}:${v.inQueue}:${v.isBusy}`).join("|");
 
-  // Save current values to preserve user selection!
   const currentDest = dispatchDestSelect ? dispatchDestSelect.value : "";
   const currentAssignVeh = assignVehicleSelect ? assignVehicleSelect.value : "";
   const currentAssignLoc = assignLocationSelect ? assignLocationSelect.value : "";
@@ -511,7 +465,6 @@ function updateDropdowns() {
   const currentRoadSrc = roadSourceSelect ? roadSourceSelect.value : "";
   const currentRoadDest = roadDestSelect ? roadDestSelect.value : "";
 
-  // 1. Destination Dropdown for Dispatch
   if (dispatchDestSelect && (currentIntersectionsSig !== lastIntersectionsSignature || dispatchDestSelect.children.length <= 1)) {
     dispatchDestSelect.innerHTML = `<option value="">Select destination (or click node on map)...</option>`;
     state.intersections.forEach(i => {
@@ -525,7 +478,6 @@ function updateDropdowns() {
     dispatchDestSelect.value = currentDest;
   }
 
-  // 2. Assign Vehicle Select
   if (assignVehicleSelect && (currentVehiclesSig !== lastVehiclesSignature || assignVehicleSelect.children.length <= 1)) {
     assignVehicleSelect.innerHTML = `<option value="">Select vehicle...</option>`;
     state.vehicles.forEach(v => {
@@ -539,7 +491,6 @@ function updateDropdowns() {
     assignVehicleSelect.value = currentAssignVeh;
   }
 
-  // 3. Assign Location Select
   if (assignLocationSelect && (currentIntersectionsSig !== lastIntersectionsSignature || assignLocationSelect.children.length <= 1)) {
     assignLocationSelect.innerHTML = `<option value="">Select intersection...</option>`;
     state.intersections.forEach(i => {
@@ -553,7 +504,6 @@ function updateDropdowns() {
     assignLocationSelect.value = currentAssignLoc;
   }
 
-  // 4. Queue Vehicle Select
   if (queueVehicleSelect && (currentVehiclesSig !== lastVehiclesSignature || queueVehicleSelect.children.length <= 1)) {
     queueVehicleSelect.innerHTML = `<option value="">Select vehicle...</option>`;
     state.vehicles.filter(v => !v.inQueue && !v.isBusy).forEach(v => {
@@ -567,7 +517,6 @@ function updateDropdowns() {
     queueVehicleSelect.value = currentQueueVeh;
   }
 
-  // 5. Road Source & Destination Select
   if (roadSourceSelect && roadDestSelect && (currentIntersectionsSig !== lastIntersectionsSignature || roadSourceSelect.children.length <= 1 || roadDestSelect.children.length <= 1)) {
     roadSourceSelect.innerHTML = `<option value="">Select source...</option>`;
     roadDestSelect.innerHTML = `<option value="">Select destination...</option>`;
@@ -634,7 +583,6 @@ function updateFleetTable() {
 }
 
 function updateNetworkTable() {
-  // 1. Intersections Table
   if (intersectionsTableBody) {
     intersectionsTableBody.innerHTML = "";
     if (state.intersections.length === 0) {
@@ -659,7 +607,6 @@ function updateNetworkTable() {
     }
   }
 
-  // 2. Existing Roads (Edges) Table
   if (roadsTableBody) {
     roadsTableBody.innerHTML = "";
     if (state.roads.length === 0) {
@@ -711,9 +658,6 @@ function updateHistoryList() {
   });
 }
 
-// ==========================================
-// INTERACTIVE CANVAS GRAPH ENGINE
-// ==========================================
 function resizeCanvas() {
   const rect = canvas.parentElement ? canvas.parentElement.getBoundingClientRect() : { width: 750, height: 480 };
   const dpr = window.devicePixelRatio || 1;
@@ -740,19 +684,17 @@ function calculateNodeCoordinates() {
   const centerX = w / 2;
   const centerY = h / 2;
 
-  // Predefined appealing coordinates for first 7 demo nodes
   const presetOffsets = [
-    { x: -0.32, y: -0.25 }, // 0: Hospital (Top-Left)
-    { x: -0.32, y: 0.28 },  // 1: Fire Station (Bottom-Left)
-    { x: 0.0, y: 0.0 },     // 2: City Center (Center)
-    { x: 0.08, y: -0.32 },  // 3: North Junction (Top)
-    { x: 0.35, y: -0.15 },  // 4: East District (Top-Right)
-    { x: 0.15, y: 0.32 },   // 5: South Hub (Bottom-Right)
-    { x: 0.38, y: 0.28 }    // 6: Rescue Command (Far Bottom-Right)
+    { x: -0.32, y: -0.25 },
+    { x: -0.32, y: 0.28 },
+    { x: 0.0, y: 0.0 },
+    { x: 0.08, y: -0.32 },
+    { x: 0.35, y: -0.15 },
+    { x: 0.15, y: 0.32 },
+    { x: 0.38, y: 0.28 }
   ];
 
   state.intersections.forEach((intersection, idx) => {
-    // If the node already has a custom dragged position, keep it!
     if (nodePositions[intersection.id] && nodePositions[intersection.id].custom) {
       nodePositions[intersection.id].name = intersection.name;
       return;
@@ -763,7 +705,6 @@ function calculateNodeCoordinates() {
       px = centerX + presetOffsets[idx].x * w;
       py = centerY + presetOffsets[idx].y * h;
     } else {
-      // Place additional nodes intelligently around perimeter
       const extraIdx = idx - presetOffsets.length;
       const angle = (extraIdx * 1.618033) * 2 * Math.PI;
       const radius = Math.min(w, h) * 0.40;
@@ -784,13 +725,11 @@ function drawGraph() {
   try {
     ctx.clearRect(0, 0, canvasWidth, canvasHeight);
 
-    // 1. Draw Road Edges
     state.roads.forEach(road => {
       const p1 = nodePositions[road.source];
       const p2 = nodePositions[road.destination];
       if (!p1 || !p2) return;
 
-      // Check if this road is part of active shortest path or green corridor
       const isPathEdge = isEdgeInPath(road.source, road.destination, state.activePathHighlight);
       const isCorridor = isPathEdge && state.signal.state === "GREEN";
 
@@ -799,34 +738,29 @@ function drawGraph() {
       ctx.lineTo(p2.x, p2.y);
 
       if (isCorridor) {
-        // Glowing green corridor
         ctx.strokeStyle = "#10b981";
         ctx.lineWidth = 5;
         ctx.shadowColor = "#10b981";
         ctx.shadowBlur = 15;
       } else if (isPathEdge) {
-        // Glowing Dijkstra path
         ctx.strokeStyle = "#f59e0b";
         ctx.lineWidth = 4;
         ctx.shadowColor = "#f59e0b";
         ctx.shadowBlur = 12;
       } else {
-        // Normal road
         ctx.strokeStyle = "#253347";
         ctx.lineWidth = 2.5;
         ctx.shadowBlur = 0;
       }
 
       ctx.stroke();
-      ctx.shadowBlur = 0; // reset
+      ctx.shadowBlur = 0;
 
-      // Distance Label on Road
       const midX = (p1.x + p2.x) / 2;
       const midY = (p1.y + p2.y) / 2;
       drawDistanceTag(midX, midY, `${road.distance} km`, isPathEdge);
     });
 
-    // 1.5 Draw temporary dashed connecting line if a source node is selected in Graph Builder mode
     if (state.activeTab === "tab-network" && state.networkSelectedSource !== null && nodePositions[state.networkSelectedSource]) {
       const pSrc = nodePositions[state.networkSelectedSource];
       const targetPos = hoveredNodeId !== null && hoveredNodeId !== state.networkSelectedSource && nodePositions[hoveredNodeId]
@@ -846,7 +780,6 @@ function drawGraph() {
       }
     }
 
-    // 2. Draw Nodes (Intersections)
     state.intersections.forEach(intersection => {
       const pos = nodePositions[intersection.id];
       if (!pos) return;
@@ -856,7 +789,6 @@ function drawGraph() {
       const isNetworkSource = state.networkSelectedSource === intersection.id;
       const isInPath = state.activePathHighlight && state.activePathHighlight.includes(intersection.id);
 
-      // Draw pulsating ring for selected network source
       if (isNetworkSource) {
         const now = performance.now() / 400;
         const pulseRadius = 24 + Math.sin(now) * 4;
@@ -870,7 +802,6 @@ function drawGraph() {
         ctx.restore();
       }
 
-      // Outer Node Circle
       ctx.save();
       ctx.beginPath();
       ctx.arc(pos.x, pos.y, 20, 0, Math.PI * 2);
@@ -910,7 +841,6 @@ function drawGraph() {
       ctx.stroke();
       ctx.restore();
 
-      // Node ID Label
       ctx.save();
       ctx.font = "bold 12px 'JetBrains Mono', monospace";
       ctx.fillStyle = "#f8fafc";
@@ -919,7 +849,6 @@ function drawGraph() {
       ctx.fillText(intersection.id, pos.x, pos.y);
       ctx.restore();
 
-      // Node Name Tag underneath
       ctx.save();
       ctx.font = "600 11px Inter, sans-serif";
       ctx.fillStyle = isDestination ? "#f87171" : isNetworkSource ? "#38bdf8" : isInPath ? "#fbbf24" : "#e2e8f0";
@@ -928,14 +857,12 @@ function drawGraph() {
       ctx.fillText(intersection.name, pos.x, pos.y + 24);
       ctx.restore();
 
-      // Draw Stationed Vehicles Badge above Node
       const stationedVehicles = state.vehicles.filter(v => v.locationId === intersection.id);
       if (stationedVehicles.length > 0) {
         drawStationedVehicleIcons(pos.x, pos.y - 25, stationedVehicles);
       }
     });
 
-    // 3. Draw Active Animated Vehicle
     if (state.animatingVehicle) {
       drawAnimatedVehicleSprite(state.animatingVehicle);
     }
@@ -1019,7 +946,6 @@ function drawAnimatedVehicleSprite(av) {
   ctx.textBaseline = "middle";
   ctx.fillText(icon, av.x, av.y);
 
-  // Label tag above vehicle
   ctx.font = "bold 10px 'JetBrains Mono', monospace";
   ctx.fillStyle = "#fff";
   ctx.fillText(av.vehicleNumber || "", av.x, av.y - 22);
@@ -1027,13 +953,11 @@ function drawAnimatedVehicleSprite(av) {
   ctx.restore();
 }
 
-// Canvas Mouse Events: Hover, Click & Drag Support
 canvas.addEventListener("mousemove", (e) => {
   const rect = canvas.getBoundingClientRect();
   const mouseX = e.clientX - rect.left;
   const mouseY = e.clientY - rect.top;
 
-  // Handle Dragging
   if (state.isDragging && state.draggedNodeId !== null && nodePositions[state.draggedNodeId]) {
     const dx = Math.abs(mouseX - state.dragStartX);
     const dy = Math.abs(mouseY - state.dragStartY);
@@ -1081,9 +1005,7 @@ window.addEventListener("mouseup", () => {
   canvas.style.cursor = hoveredNodeId !== null ? "pointer" : "default";
 });
 
-// Canvas Click Event (Intelligent Context-Aware Action)
 canvas.addEventListener("click", () => {
-  // If user dragged a node, don't trigger click action
   if (state.dragMoved) {
     state.dragMoved = false;
     return;
@@ -1094,10 +1016,8 @@ canvas.addEventListener("click", () => {
   const clickedId = hoveredNodeId;
   const nodeName = nodePositions[clickedId]?.name || `#${clickedId}`;
 
-  // Mode 1: Graph Builder Mode (Network Tab)
   if (state.activeTab === "tab-network") {
     if (state.networkSelectedSource === null) {
-      // Step A: Select Source
       state.networkSelectedSource = clickedId;
       if (roadSourceSelect) roadSourceSelect.value = clickedId;
 
@@ -1110,16 +1030,14 @@ canvas.addEventListener("click", () => {
       showToast(`Source selected: #${clickedId} (${nodeName}). Click second node to connect road!`, "info");
       updateMapModeUI();
     } else if (state.networkSelectedSource === clickedId) {
-      // Clicked same node: deselect
       clearMapRoadSelection();
       showToast("Deselected road source", "info");
     } else {
-      // Step B: Select Destination
       state.networkSelectedDest = clickedId;
       if (roadDestSelect) roadDestSelect.value = clickedId;
 
       if (roadDistInput && (!roadDistInput.value || parseInt(roadDistInput.value) <= 0)) {
-        roadDistInput.value = "5"; // sensible default distance
+        roadDistInput.value = "5";
       }
 
       if (connectSelectionPill) connectSelectionPill.classList.add("active");
@@ -1130,7 +1048,6 @@ canvas.addEventListener("click", () => {
       }
       if (btnClearMapSelection) btnClearMapSelection.classList.remove("hidden");
 
-      // Scroll form smoothly into view & focus distance input
       if (roadDistInput) roadDistInput.focus();
       showToast(`Ready to connect #${state.networkSelectedSource} ➔ #${clickedId}! Click 'Connect Road' below.`, "success");
       updateMapModeUI();
@@ -1138,14 +1055,12 @@ canvas.addEventListener("click", () => {
     return;
   }
 
-  // Mode 2: Station Fleet Mode (Fleet Tab)
   if (state.activeTab === "tab-vehicles") {
     if (assignLocationSelect) assignLocationSelect.value = clickedId;
     showToast(`Intersection #${clickedId} (${nodeName}) selected for vehicle stationing`, "info");
     return;
   }
 
-  // Mode 3: Emergency Dispatch Mode (Dispatch Tab & Default)
   state.selectedDestinationId = clickedId;
   if (dispatchDestSelect) dispatchDestSelect.value = clickedId;
   showToast(`Emergency destination set: #${clickedId} (${nodeName})`, "info");
@@ -1154,7 +1069,6 @@ canvas.addEventListener("click", () => {
 
 if (resetMapZoomBtn) {
   resetMapZoomBtn.addEventListener("click", () => {
-    // Reset custom coordinates
     for (const id in nodePositions) {
       nodePositions[id].custom = false;
     }
@@ -1163,11 +1077,6 @@ if (resetMapZoomBtn) {
   });
 }
 
-// ==========================================
-// ACTIONS & HANDLERS
-// ==========================================
-
-// Preload Demo City
 if (loadSampleBtn) {
   loadSampleBtn.addEventListener("click", async () => {
     if (state.isBackendConnected) {
@@ -1186,7 +1095,6 @@ if (loadSampleBtn) {
   });
 }
 
-// Emergency Dispatch
 if (dispatchForm) {
   dispatchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1207,7 +1115,6 @@ if (dispatchForm) {
         showToast(err.message, "danger");
       }
     } else {
-      // Client-side simulation
       const suitableVehicles = state.vehicles.filter(v => {
         if (v.isBusy) return false;
         const vt = (v.type || "").toLowerCase();
@@ -1223,7 +1130,6 @@ if (dispatchForm) {
         return;
       }
 
-      // Find nearest suitable vehicle using Dijkstra
       let bestVehicle = null;
       let bestRoute = null;
       let minDistance = Infinity;
@@ -1283,7 +1189,6 @@ function handleDispatchSuccess(result, type, destId) {
   showToast(`Vehicle ${result.vehicleNumber} dispatched via shortest route (${result.distance} km)!`, "success");
 }
 
-// Simulate Route Animation
 if (btnSimulateRoute) {
   btnSimulateRoute.addEventListener("click", async () => {
     const vehicleNum = resultVehicle.textContent;
@@ -1291,12 +1196,10 @@ if (btnSimulateRoute) {
 
     const vehicleObj = state.vehicles.find(v => v.number === vehicleNum) || { vehicleNumber: vehicleNum, type: resultEmergencyType.textContent };
 
-    // 1. Activate green corridor
     state.signal.state = "GREEN";
     state.signal.isEmergency = true;
     updateTrafficLight();
 
-    // 2. Start Canvas Animation
     if (simBanner) simBanner.classList.remove("hidden");
     if (simVehicleTitle) simVehicleTitle.textContent = `Vehicle ${vehicleNum} En Route`;
     if (simStatusSub) simStatusSub.textContent = `Green Corridor active • Driving through ${state.activePathHighlight.length} intersections...`;
@@ -1307,13 +1210,11 @@ if (btnSimulateRoute) {
 
     function animateStep() {
       if (currentStep >= totalSteps) {
-        // Completed route!
         state.animatingVehicle = null;
         if (simBanner) simBanner.classList.add("hidden");
         state.signal.state = "RED";
         state.signal.isEmergency = false;
 
-        // Update vehicle location to destination
         const destId = path[path.length - 1];
         const vehicle = state.vehicles.find(v => v.number === vehicleNum);
         if (vehicle) {
@@ -1326,7 +1227,6 @@ if (btnSimulateRoute) {
         if (dispatchResultBox) dispatchResultBox.classList.add("hidden");
         showToast(`Vehicle ${vehicleNum} reached destination successfully! Dispatch complete.`, "success");
 
-        // Notify backend if online
         if (state.isBackendConnected) {
           apiCall("/api/simulate", "POST", { vehicleNumber: vehicleNum }).catch(() => {});
           syncSystemState();
@@ -1349,7 +1249,7 @@ if (btnSimulateRoute) {
       }
 
       let t = 0;
-      const duration = 1200; // ms per road segment
+      const duration = 1200;
       const startTime = performance.now();
 
       function stepFrame(now) {
@@ -1384,7 +1284,6 @@ if (btnSimulateRoute) {
   });
 }
 
-// Signal Controls
 if (givePriorityBtn) {
   givePriorityBtn.addEventListener("click", async () => {
     if (state.isBackendConnected) {
@@ -1425,7 +1324,6 @@ if (resetSignalBtn) {
   });
 }
 
-// Dequeue Front Vehicle
 if (dequeueBtn) {
   dequeueBtn.addEventListener("click", async () => {
     if (state.isBackendConnected) {
@@ -1448,7 +1346,6 @@ if (dequeueBtn) {
   });
 }
 
-// Register Vehicle
 if (addVehicleForm) {
   addVehicleForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1478,7 +1375,6 @@ if (addVehicleForm) {
   });
 }
 
-// Set Location
 if (setLocationForm) {
   setLocationForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1508,7 +1404,6 @@ if (setLocationForm) {
   });
 }
 
-// Enqueue Vehicle
 if (enqueueForm) {
   enqueueForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1536,7 +1431,6 @@ if (enqueueForm) {
   });
 }
 
-// Remove Vehicle
 async function handleRemoveVehicle(num) {
   if (state.isBackendConnected) {
     try {
@@ -1555,7 +1449,6 @@ async function handleRemoveVehicle(num) {
   }
 }
 
-// Add Intersection
 if (addIntersectionForm) {
   addIntersectionForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1583,7 +1476,6 @@ if (addIntersectionForm) {
   });
 }
 
-// Add Road (Connect Edge)
 if (addRoadForm) {
   addRoadForm.addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -1601,7 +1493,6 @@ if (addRoadForm) {
       return;
     }
 
-    // Check if edge already exists
     const alreadyExists = state.roads.some(
       r => (r.source === src && r.destination === dest) || (r.source === dest && r.destination === src)
     );
@@ -1632,7 +1523,6 @@ if (addRoadForm) {
   });
 }
 
-// Remove Road (Edge)
 async function handleRemoveRoad(src, dest) {
   if (state.isBackendConnected) {
     try {
@@ -1652,9 +1542,6 @@ async function handleRemoveRoad(src, dest) {
   }
 }
 
-// ==========================================
-// STARTUP BOOTSTRAP
-// ==========================================
 function initApp() {
   initFallbackDataIfEmpty();
   resizeCanvas();
@@ -1662,16 +1549,13 @@ function initApp() {
   drawGraph();
   updateMapModeUI();
 
-  // Initial sync with backend
   syncSystemState();
 
-  // Periodic polling every 2s for backend synchronization
   setInterval(() => {
     syncSystemState();
   }, 2000);
 }
 
-// Run immediately if DOM is ready, otherwise listen for DOMContentLoaded
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initApp);
 } else {
