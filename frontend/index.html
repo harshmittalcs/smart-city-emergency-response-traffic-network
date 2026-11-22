@@ -26,6 +26,9 @@
         <span id="backendStatus">Connecting...</span>
       </div>
       <div class="live-clock" id="liveClock">00:00:00</div>
+      <button class="btn btn-sm btn-info" id="openDsaGuideBtn" title="View Data Structures & Algorithms Architectural Guide">
+        ℹ️ DSA Architecture Guide
+      </button>
       <button class="btn btn-sm btn-outline" id="loadSampleBtn" title="Preload sample city with 7 intersections & 4 vehicles">
         ⚡ Load Demo City
       </button>
@@ -88,7 +91,7 @@
         <div class="card-title">
           <span class="header-icon">🗺️</span>
           <h2>Interactive Road Network Map</h2>
-          <span class="chip chip-graph">Weighted Graph & Dijkstra</span>
+          <span class="chip chip-graph" id="mapModeBadge">Mode: Incident Destination</span>
         </div>
         <div class="map-controls">
           <button class="btn btn-xs btn-outline" id="resetMapZoomBtn" title="Reset Map View">Center View</button>
@@ -101,7 +104,7 @@
       <div class="canvas-wrapper">
         <canvas id="cityCanvas"></canvas>
         <div class="canvas-overlay" id="canvasOverlay">
-          <div class="overlay-pill">Click any intersection node to select it as Destination</div>
+          <div class="overlay-pill" id="overlayText">Click any intersection node to select it as Destination</div>
         </div>
         <!-- Active Simulation Floating Banner -->
         <div class="sim-banner hidden" id="simBanner">
@@ -150,6 +153,39 @@
 
     <!-- Right Column: Operations Panel -->
     <aside class="control-panel">
+      <!-- System Workflow Pipeline (DSA Lifecycle Stepper) -->
+      <div class="pipeline-container">
+        <div class="pipeline-header">
+          <span class="pipeline-title">⚡ SYSTEM WORKFLOW (HOW IT CONNECTS)</span>
+          <span class="pipeline-badge">3-Step DSA Pipeline</span>
+        </div>
+        <div class="system-pipeline-strip">
+          <div class="pipeline-step" data-step="tab-network" title="Step 1: Construct the Road Network (Graph & Edges)">
+            <span class="step-num">1</span>
+            <div class="step-meta">
+              <span class="step-label">🛣️ Network</span>
+              <span class="step-dsa">Graph (V, E)</span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">➔</div>
+          <div class="pipeline-step" data-step="tab-vehicles" title="Step 2: Register Fleet & Station at Intersections">
+            <span class="step-num">2</span>
+            <div class="step-meta">
+              <span class="step-label">🚑 Fleet</span>
+              <span class="step-dsa">Linked List + FIFO</span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">➔</div>
+          <div class="pipeline-step active" data-step="tab-dispatch" title="Step 3: Route Nearest Vehicle using Dijkstra & Green Corridor">
+            <span class="step-num">3</span>
+            <div class="step-meta">
+              <span class="step-label">🚨 Dispatch</span>
+              <span class="step-dsa">Dijkstra + Priority</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- Tab Navigation -->
       <nav class="tabs-nav">
         <button class="tab-btn active" data-tab="tab-dispatch">
@@ -169,6 +205,18 @@
       <!-- Tab 1: Emergency Dispatch -->
       <div class="tab-content active" id="tab-dispatch">
         <div class="card panel-card">
+          <!-- DSA Concept Explainer -->
+          <div class="concept-banner">
+            <div class="concept-header">
+              <span class="concept-icon">🚨</span>
+              <strong>Step 3: Emergency Dispatch Center</strong>
+              <span class="concept-tag tag-dijkstra">Dijkstra Algorithm</span>
+            </div>
+            <p class="concept-text">
+              <strong>How it works:</strong> Searches the <strong>Fleet (Linked List)</strong> for available vehicles matching the emergency type, runs <strong>Dijkstra's Algorithm</strong> on the <strong>Road Network (Graph)</strong> to compute the shortest road path, and gives the vehicle <strong>Green Corridor</strong> signal priority!
+            </p>
+          </div>
+
           <div class="panel-header">
             <h3>⚡ Emergency Dispatch Center</h3>
             <p>Automatically finds nearest suitable vehicle using Dijkstra Algorithm</p>
@@ -187,7 +235,7 @@
             <div class="form-group">
               <label for="dispatchDestSelect">Destination Intersection</label>
               <select id="dispatchDestSelect" class="form-input" required>
-                <option value="">Select destination...</option>
+                <option value="">Select destination (or click node on map)...</option>
               </select>
             </div>
 
@@ -221,6 +269,18 @@
       <!-- Tab 2: Vehicle Fleet Management -->
       <div class="tab-content" id="tab-vehicles">
         <div class="card panel-card">
+          <!-- DSA Concept Explainer -->
+          <div class="concept-banner">
+            <div class="concept-header">
+              <span class="concept-icon">🚑</span>
+              <strong>Step 2: Emergency Fleet Management</strong>
+              <span class="concept-tag tag-list">Linked List & FIFO Queue</span>
+            </div>
+            <p class="concept-text">
+              <strong>How it works:</strong> Emergency vehicles are stored in a <strong>Linked List</strong>. Before vehicles can be dispatched, they must be <strong>stationed at an intersection</strong> on the road network! You can also place vehicles in the <strong>FIFO Signal Queue</strong> to test traffic delays.
+            </p>
+          </div>
+
           <div class="panel-header">
             <h3>🚑 Emergency Fleet (Linked List)</h3>
             <p>Register, locate, and enqueue emergency vehicles</p>
@@ -242,7 +302,10 @@
 
           <!-- Assign Location Sub-card -->
           <div class="sub-form-section">
-            <h4>Assign Vehicle Location</h4>
+            <div class="section-title-row">
+              <h4>Station Vehicle at Intersection</h4>
+              <span class="map-hint-pill">💡 Or click node on map</span>
+            </div>
             <form id="setLocationForm" class="inline-form">
               <select id="assignVehicleSelect" class="form-input" required>
                 <option value="">Select vehicle...</option>
@@ -288,6 +351,18 @@
       <!-- Tab 3: Road Network Builder -->
       <div class="tab-content" id="tab-network">
         <div class="card panel-card">
+          <!-- DSA Concept Explainer -->
+          <div class="concept-banner">
+            <div class="concept-header">
+              <span class="concept-icon">🛣️</span>
+              <strong>Step 1: City Road Network (Graph)</strong>
+              <span class="concept-tag tag-graph">Weighted Graph G = (V, E)</span>
+            </div>
+            <p class="concept-text">
+              <strong>How it works:</strong> Intersections are <strong>Vertices (V)</strong> and roads are <strong>Weighted Edges (E)</strong> with distance in km. Connect roads below OR <strong>click any two nodes on the interactive map</strong> to connect them!
+            </p>
+          </div>
+
           <div class="panel-header">
             <h3>🛣️ City Road Network (Graph)</h3>
             <p>Add intersections and bidirectional weighted roads</p>
@@ -295,53 +370,89 @@
 
           <!-- Add Intersection -->
           <div class="sub-form-section">
-            <h4>Add Intersection</h4>
+            <h4>1. Add Intersection (Node)</h4>
             <form id="addIntersectionForm" class="inline-form">
-              <input type="text" id="intersectionNameInput" class="form-input" placeholder="e.g. Metro Station" required>
+              <input type="text" id="intersectionNameInput" class="form-input" placeholder="e.g. Metro Airport" required>
               <button type="submit" class="btn btn-primary">Add Intersection</button>
             </form>
           </div>
 
-          <!-- Add Road -->
+          <!-- Add Road (Edge) -->
           <div class="sub-form-section">
-            <h4>Connect Road (Edge)</h4>
+            <div class="section-title-row">
+              <h4>2. Connect Road (Edge)</h4>
+              <span class="map-hint-pill">💡 Or click 2 nodes on map</span>
+            </div>
+
+            <!-- Active Map Selection Feedback Pill -->
+            <div class="connect-selection-pill" id="connectSelectionPill">
+              <span class="pill-dot" id="pillDot"></span>
+              <span id="connectSelectionText">Click a node on the map to select Road Source, or use dropdowns below.</span>
+              <button type="button" class="btn-clear-selection hidden" id="btnClearMapSelection" title="Cancel selection">✕</button>
+            </div>
+
             <form id="addRoadForm" class="control-form">
               <div class="form-row">
                 <div class="form-group col-half">
-                  <label>Source</label>
+                  <label for="roadSourceSelect">Source Node</label>
                   <select id="roadSourceSelect" class="form-input" required>
-                    <option value="">Select...</option>
+                    <option value="">Select source...</option>
                   </select>
                 </div>
                 <div class="form-group col-half">
-                  <label>Destination</label>
+                  <label for="roadDestSelect">Destination Node</label>
                   <select id="roadDestSelect" class="form-input" required>
-                    <option value="">Select...</option>
+                    <option value="">Select destination...</option>
                   </select>
                 </div>
               </div>
               <div class="form-group">
-                <label>Distance (km)</label>
+                <label for="roadDistInput">Distance (km)</label>
                 <input type="number" id="roadDistInput" class="form-input" placeholder="e.g. 5" min="1" required>
               </div>
-              <button type="submit" class="btn btn-outline btn-block">Add Road</button>
+              <button type="submit" class="btn btn-primary btn-block" id="btnConnectRoad">
+                🔗 Connect Road (Add Edge)
+              </button>
             </form>
           </div>
 
-          <!-- Intersections & Roads List -->
-          <div class="table-wrapper">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Intersection Name</th>
-                  <th>Connected Roads</th>
-                </tr>
-              </thead>
-              <tbody id="intersectionsTableBody">
-                <tr><td colspan="3" class="text-center">No intersections created.</td></tr>
-              </tbody>
-            </table>
+          <!-- Dual Tables: Intersections & Existing Roads -->
+          <div class="sub-form-section">
+            <h4 class="table-section-title">Intersections (Graph Vertices)</h4>
+            <div class="table-wrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Intersection Name</th>
+                    <th>Connected Neighbors</th>
+                  </tr>
+                </thead>
+                <tbody id="intersectionsTableBody">
+                  <tr><td colspan="3" class="text-center">No intersections created.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Existing Roads Table -->
+          <div class="sub-form-section">
+            <h4 class="table-section-title">Existing Roads (Graph Weighted Edges)</h4>
+            <div class="table-wrapper" id="roadsTableWrapper">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Segment</th>
+                    <th>Distance</th>
+                    <th>Direction</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="roadsTableBody">
+                  <tr><td colspan="4" class="text-center">No roads connected yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -349,6 +460,18 @@
       <!-- Tab 4: Action History (Stack) -->
       <div class="tab-content" id="tab-history">
         <div class="card panel-card">
+          <!-- DSA Concept Explainer -->
+          <div class="concept-banner">
+            <div class="concept-header">
+              <span class="concept-icon">📜</span>
+              <strong>Action History Log (Stack)</strong>
+              <span class="concept-tag tag-stack">LIFO Stack (push / pop)</span>
+            </div>
+            <p class="concept-text">
+              <strong>How it works:</strong> All city operations (adding roads, registering vehicles, queuing signals, emergency dispatches) are pushed onto a <strong>LIFO (Last-In, First-Out) Stack</strong> for real-time audit trailing.
+            </p>
+          </div>
+
           <div class="panel-header">
             <h3>📜 Action History Log</h3>
             <p>TrafficActionStack (LIFO - Last In, First Out)</p>
@@ -363,6 +486,111 @@
 
   <!-- Notification Toast -->
   <div class="toast-container" id="toastContainer"></div>
+
+  <!-- DSA Architecture & Workflow Modal -->
+  <div class="modal-backdrop hidden" id="dsaGuideModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="modal-title-wrap">
+          <span class="modal-icon">🏛️</span>
+          <div>
+            <h3>Smart City System Architecture & DSA Guide</h3>
+            <p>How Dispatch, Fleet, and Road Network work together</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="closeModalBtn" title="Close Guide">✕</button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Visual Workflow Diagram -->
+        <div class="modal-section">
+          <h4>🔄 Complete Emergency Response Workflow</h4>
+          <div class="dsa-flow-diagram">
+            <div class="flow-box box-step1">
+              <div class="box-badge">Step 1</div>
+              <strong>🛣️ Road Network</strong>
+              <span class="box-dsa">Graph G=(V, E)</span>
+              <p>Defines city topology. Intersections (Vertices) connected by Roads (Weighted Edges).</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-box box-step2">
+              <div class="box-badge">Step 2</div>
+              <strong>🚑 Emergency Fleet</strong>
+              <span class="box-dsa">Linked List + FIFO Queue</span>
+              <p>Vehicles (Ambulances, Fire, Rescue) registered and stationed at graph nodes.</p>
+            </div>
+            <div class="flow-arrow">➔</div>
+            <div class="flow-box box-step3">
+              <div class="box-badge">Step 3</div>
+              <strong>🚨 Dispatch Engine</strong>
+              <span class="box-dsa">Dijkstra Shortest Path</span>
+              <p>Finds closest vehicle to incident, activates Green Corridor, and animates route.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 5 Core DSA Structures -->
+        <div class="modal-section">
+          <h4>📚 Data Structures & Algorithms Used</h4>
+          <div class="dsa-grid">
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">🗺️</span>
+                <strong>Weighted Graph</strong>
+              </div>
+              <p>Adjacency List representing intersections as vertices ($V$) and bidirectional roads as edges ($E$) with distance weights.</p>
+              <div class="dsa-class-badge">Class: RoadNetwork</div>
+            </div>
+
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">⚡</span>
+                <strong>Dijkstra's Algorithm</strong>
+              </div>
+              <p>Min-Priority Queue based shortest path algorithm ($O((V+E)\log V)$) to calculate fastest route to emergency.</p>
+              <div class="dsa-class-badge">Class: ShortestPath</div>
+            </div>
+
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">🚑</span>
+                <strong>Singly Linked List</strong>
+              </div>
+              <p>Dynamic vehicle registration, searching by number/type, insertion, and deletion with zero fixed-size limits.</p>
+              <div class="dsa-class-badge">Class: EmergencyVehicleList</div>
+            </div>
+
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">🚦</span>
+                <strong>FIFO Queue</strong>
+              </div>
+              <p>First-In-First-Out waiting queue at traffic intersections. Front vehicle passes when signal turns green.</p>
+              <div class="dsa-class-badge">Class: TrafficQueue</div>
+            </div>
+
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">📜</span>
+                <strong>LIFO Stack</strong>
+              </div>
+              <p>Last-In-First-Out audit log tracking all user and emergency operations in reverse chronological order.</p>
+              <div class="dsa-class-badge">Class: TrafficActionStack</div>
+            </div>
+
+            <div class="dsa-card">
+              <div class="dsa-card-header">
+                <span class="dsa-card-icon">🚨</span>
+                <strong>Green Corridor</strong>
+              </div>
+              <p>Dynamic traffic signal preemption that turns lights GREEN along the emergency route to prevent queue delays.</p>
+              <div class="dsa-class-badge">Class: TrafficSimulation</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="app.js"></script>
 </body>
